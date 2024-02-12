@@ -7,7 +7,7 @@ dynamic = ["dependencies","optional-dependencies"]
 
 [tool.setuptools.dynamic]
 dependencies = {file = ["requirements.txt"]}
-optional-dependencies = {dev = { file = ["requirements-dev.txt"] }}
+optional-dependencies = { dev = {file = ["requirements-dev.txt"]} }
 
 [project.urls]
 Repository = "https://github.com/lpardey/be-physical"
@@ -57,3 +57,8 @@ no_implicit_reexport = false
 strict_equality = true
 
 exclude = ['^setup\.py$', 'recipe_app/.*/migrations/.*\.py']
+
+plugins = "mypy_django_plugin.main"
+
+[tool.django-stubs]
+django_settings_module = "be_physical.settings"
