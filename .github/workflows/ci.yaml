@@ -60,6 +60,7 @@ jobs:
           ruff check .
 
       - name: Run mypy
+        working-directory: ./be_physical
         run: |
           mypy .
 
