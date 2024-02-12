@@ -1,11 +1,16 @@
 [project]
-name = "new project"
+name = "be-physical"
 version = "0.1.0"
 description = "new project description"
 requires-python = ">=3.12.0"
+dynamic = ["dependencies","optional-dependencies"] 
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+optional-dependencies = {dev = { file = ["requirements-dev.txt"] }}
 
 [project.urls]
-Repository = "new project repository url"
+Repository = "https://github.com/lpardey/be-physical"
 
 [tool.ruff]
 line-length = 119
@@ -51,4 +56,4 @@ no_implicit_reexport = false
 
 strict_equality = true
 
-exclude = ['^setup\.py$']
+exclude = ['^setup\.py$', 'recipe_app/.*/migrations/.*\.py']
