@@ -1,10 +1,11 @@
 {
-	"name": "new project",
-	"build": {
-		"dockerfile": "../Dockerfile",
-		"context": "..",
-		"target": "development"
-	},
+	"name": "be-physical - dev",
+	"dockerComposeFile": [
+		"../docker-compose.yaml",
+		"docker-compose.yaml"
+	],
+	"service": "backend",
+	"workspaceFolder": "/app",
 	"customizations": {
 		"vscode": {
 			"settings": {
