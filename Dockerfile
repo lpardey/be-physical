@@ -8,3 +8,6 @@ FROM base AS development
 
 COPY requirements-dev.txt requirements-dev.txt
 RUN python -m pip install -r requirements-dev.txt
+
+RUN mkdir /app
+WORKDIR /app
