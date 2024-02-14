@@ -1,18 +1,25 @@
 import math
-from enum import Enum, IntEnum, StrEnum, auto
+from enum import Enum
 
 from django.contrib.auth.models import User
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-
-from ..be_physical.common import get_choices
+from django.utils.translation import gettext as _
 
 # Create your models here.
 
 
 class UserInfo(models.Model):
     user_id = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    height = models.DecimalField(max_digits=3, decimal_places=2, blank=False, null=False, help_text="Height in meters")
-    birth_date = models.DateField(blank=False, null=False, help_text="Birthdate as day/month/year")
+    height = models.DecimalField(
+        max_digits=3,
+        decimal_places=2,
+        blank=False,
+        null=False,
+        help_text=_("Height in meters"),
+        validators=[MinValueValidator(1.0), MaxValueValidator(2.5)],
+    )
+    birth_date = models.DateField(blank=False, null=False, help_text=_("Birthdate as day/month/year"))
     annotations: models.QuerySet["UserAnnotation"]
     tracking_points: models.QuerySet["UserTrackingPoint"]
 
@@ -32,16 +39,23 @@ class UserInfo(models.Model):
 
         for category in BMICategory:
             if category.lower_bound <= self.bmi <= category.upper_bound:
-                return category.label.replace("_", " ").title()
+                return category.label
+
+    def __str__(self) -> str:
+        return _(f"User #{self.user_id} information")
 
 
 class BMICategory(Enum):
-    UNDERWEIGHT = (0, 18.4, auto())
-    HEALTHY_WEIGHT = (18.5, 24.9, auto())
-    OVERWEIGHT = (25.0, 29.9, auto())
-    OBESITY_CLASS_I = (30.0, 34.9, auto())
-    OBESITY_CLASS_II = (35.0, 39.9, auto())
-    OBESITY_CLASS_III = (40.0, math.inf, auto())
+    """
+    Based on the World Health Organization (WHO) guidelines
+    """
+
+    UNDERWEIGHT = (0, 18.4)
+    HEALTHY_WEIGHT = (18.5, 24.9)
+    OVERWEIGHT = (25.0, 29.9)
+    OBESITY_CLASS_I = (30.0, 34.9)
+    OBESITY_CLASS_II = (35.0, 39.9)
+    OBESITY_CLASS_III = (40.0, math.inf)
 
     @property
     def lower_bound(self) -> float:
@@ -53,37 +67,34 @@ class BMICategory(Enum):
 
     @property
     def label(self) -> str:
-        return self.value[2]
+        return _(self.name.replace("_", " ").title())
 
 
-class StatusEnum(IntEnum):
-    INACTIVE = 0
-    ACTIVE = auto()
+class StatusChoices(models.IntegerChoices):
+    INACTIVE = 0, _("Inactive")
+    ACTIVE = 1, _("Active")
 
 
-class AnnotationScopeEnum(StrEnum):
-    USER = auto()
-    TRAINER = auto()
+class ScopeChoices(models.TextChoices):
+    USER = _("User")
+    TRAINER = _("Trainer")
 
 
-class AnnotationTypeEnum(StrEnum):
-    GENERAL = auto()
-    GOAL = auto()
-    RESTRICTION = auto()
-    TRAINER_ANNOTATION = auto()
-
-
-ANNOTATION_TYPE_CHOICES = get_choices(AnnotationTypeEnum, str)
-SCOPE_CHOICES = get_choices(AnnotationScopeEnum, str)
-STATUS_CHOICES = get_choices(StatusEnum, int)
+class AnnotationTypeChoices(models.TextChoices):
+    GENERAL = _("General")
+    GOAL = _("Goal")
+    RESTRICTION = _("Restriction")
+    TRAINER_ANNOTATION = _("Trainer Annotation")
 
 
 class UserAnnotation(models.Model):
     user_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, related_name="annotations")
     text = models.TextField(max_length=500)
-    annotation_type = models.CharField(max_length=64, choices=ANNOTATION_TYPE_CHOICES)
-    scope = models.CharField(max_length=64, choices=SCOPE_CHOICES)
-    status = models.IntegerField(choices=STATUS_CHOICES)
+    annotation_type = models.CharField(
+        max_length=64, choices=AnnotationTypeChoices, default=AnnotationTypeChoices.GENERAL
+    )
+    scope = models.CharField(max_length=64, choices=ScopeChoices, default=ScopeChoices.USER)
+    status = models.IntegerField(choices=StatusChoices, blank=True, null=True, default=StatusChoices.ACTIVE)
 
 
 class UserTrackingPoint(models.Model):
