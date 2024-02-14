@@ -30,7 +30,8 @@
 				"ms-vsliveshare.vsliveshare",
 				"mhutchie.git-graph",
 				"ms-toolsai.jupyter",
-				"charliermarsh.ruff"
+				"charliermarsh.ruff",
+				"tamasfe.even-better-toml"
 			]
 		}
 	}
