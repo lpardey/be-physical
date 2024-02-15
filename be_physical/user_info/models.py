@@ -1,10 +1,9 @@
-import math
-from enum import Enum
-
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext as _
+
+from . import bmi
 
 # Create your models here.
 
@@ -28,46 +27,19 @@ class UserInfo(models.Model):
         latest_weight = self.tracking_points.filter(label__eq="weight").order_by("-date").first()
 
         if latest_weight is not None:
-            return latest_weight / (self.height**2)
+            return bmi.get_bmi(self.height, latest_weight)
 
         return None
 
     @property
-    def category_by_bmi(self) -> str | None:
+    def category_name_by_bmi(self) -> str | None:
         if self.bmi is None:
             return None
 
-        for category in BMICategory:
-            if category.lower_bound <= self.bmi <= category.upper_bound:
-                return category.label
+        return _(bmi.get_category_name(self.bmi))
 
     def __str__(self) -> str:
         return _(f"User #{self.user_id} information")
-
-
-class BMICategory(Enum):
-    """
-    Based on the World Health Organization (WHO) guidelines
-    """
-
-    UNDERWEIGHT = (0, 18.4)
-    HEALTHY_WEIGHT = (18.5, 24.9)
-    OVERWEIGHT = (25.0, 29.9)
-    OBESITY_CLASS_I = (30.0, 34.9)
-    OBESITY_CLASS_II = (35.0, 39.9)
-    OBESITY_CLASS_III = (40.0, math.inf)
-
-    @property
-    def lower_bound(self) -> float:
-        return self.value[0]
-
-    @property
-    def upper_bound(self) -> float:
-        return self.value[1]
-
-    @property
-    def label(self) -> str:
-        return _(self.name.replace("_", " ").title())
 
 
 class StatusChoices(models.IntegerChoices):
@@ -75,30 +47,28 @@ class StatusChoices(models.IntegerChoices):
     ACTIVE = 1, _("Active")
 
 
-class ScopeChoices(models.TextChoices):
-    USER = _("User")
-    TRAINER = _("Trainer")
+class ScopeChoices(models.IntegerChoices):
+    USER = 0, _("User")
+    TRAINER = 1, _("Trainer")
 
 
-class AnnotationTypeChoices(models.TextChoices):
-    GENERAL = _("General")
-    GOAL = _("Goal")
-    RESTRICTION = _("Restriction")
-    TRAINER_ANNOTATION = _("Trainer Annotation")
+class AnnotationTypeChoices(models.IntegerChoices):
+    GENERAL = 0, _("General")
+    GOAL = 1, _("Goal")
+    RESTRICTION = 2, _("Restriction")
+    TRAINER_ANNOTATION = 3, _("Trainer Annotation")
 
 
 class UserAnnotation(models.Model):
     user_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, related_name="annotations")
     text = models.TextField(max_length=500)
-    annotation_type = models.CharField(
-        max_length=64, choices=AnnotationTypeChoices, default=AnnotationTypeChoices.GENERAL
-    )
-    scope = models.CharField(max_length=64, choices=ScopeChoices, default=ScopeChoices.USER)
-    status = models.IntegerField(choices=StatusChoices, blank=True, null=True, default=StatusChoices.ACTIVE)
+    annotation_type = models.IntegerField(choices=AnnotationTypeChoices, default=AnnotationTypeChoices.GENERAL)
+    scope = models.IntegerField(choices=ScopeChoices, default=ScopeChoices.USER)
+    status = models.IntegerField(choices=StatusChoices, default=StatusChoices.ACTIVE)
 
 
 class UserTrackingPoint(models.Model):
     user_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, db_index=True, related_name="tracking_points")
-    label = models.CharField(max_length=64, blank=False, db_index=True)
-    date = models.DateField(blank=False, null=False, auto_now=True)
+    label = models.CharField(max_length=64, db_index=True)
+    date = models.DateField(auto_now=True)
     value = models.FloatField()
