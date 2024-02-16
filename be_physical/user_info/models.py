@@ -66,9 +66,15 @@ class UserAnnotation(models.Model):
     scope = models.IntegerField(choices=ScopeChoices, default=ScopeChoices.USER)
     status = models.IntegerField(choices=StatusChoices, default=StatusChoices.ACTIVE)
 
+    def __str__(self) -> str:
+        return f"{self.annotation_type}: {self.text}"
+
 
 class UserTrackingPoint(models.Model):
     user_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, db_index=True, related_name="tracking_points")
     label = models.CharField(max_length=64, db_index=True)
     date = models.DateField(auto_now=True)
     value = models.FloatField()
+
+    def __str__(self) -> str:
+        return f"{self.date}: {self.label} --> {self.value}"
