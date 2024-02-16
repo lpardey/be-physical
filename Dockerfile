@@ -11,3 +11,4 @@ RUN python -m pip install -r requirements-dev.txt
 
 RUN mkdir /app
 WORKDIR /app
+ENV PATH="/app/be_physical:${PATH}"
