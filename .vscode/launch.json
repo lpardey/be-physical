@@ -8,12 +8,13 @@
             "name": "Python Debugger: Django",
             "type": "debugpy",
             "request": "launch",
-            "program": "be_physical/manage.py",
+            "program": "manage.py",
             "args": [
                 "runserver",
                 "0.0.0.0:8000"
             ],
-            "django": true
+            "django": true,
+            "cwd": "be_physical"
         }
     ]
 }
