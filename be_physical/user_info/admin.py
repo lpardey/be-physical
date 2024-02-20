@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import UserAnnotation, UserInfo, UserTrackingPoint
+from .models import UserAnnotation, UserInfo, UserTrackingLabel, UserTrackingPoint
 
 # Register your models here.
 
@@ -20,7 +20,8 @@ class UserTrackingPointInline(admin.TabularInline):
 class UserInfoAdmin(admin.ModelAdmin):
     search_fields = ["user_id__username"]
     inlines = [UserAnnotationInline, UserTrackingPointInline]
-    list_display = ["user_id", "height", "birth_date"]
+    readonly_fields = ["bmi", "category_name_by_bmi"]
+    list_display = ["user_id", "height", "birth_date", "bmi", "category_name_by_bmi"]
     list_filter = ["user_id", "height", "birth_date"]
 
 
@@ -36,3 +37,10 @@ class UserTrackingPointAdmin(admin.ModelAdmin):
     list_display = ["user_id", "label", "date", "value"]
     list_filter = ["user_id", "label", "date"]
     search_fields = ["user_id", "label"]
+
+
+@admin.register(UserTrackingLabel)
+class UserTrackingLabelAdmin(admin.ModelAdmin):
+    list_display = ["label", "description"]
+    list_filter = ["label"]
+    search_fields = ["label", "description"]
