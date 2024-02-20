@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -24,10 +26,10 @@ class UserInfo(models.Model):
 
     @property
     def bmi(self) -> float | None:
-        latest_weight = self.tracking_points.filter(label__eq="weight").order_by("-date").first()
+        latest_weight = self.tracking_points.filter(label__label="weight").order_by("-date").first()
 
         if latest_weight is not None:
-            return bmi.get_bmi(self.height, latest_weight)
+            return bmi.get_bmi(float(self.height), latest_weight.value)
 
         return None
 
@@ -39,7 +41,7 @@ class UserInfo(models.Model):
         return _(bmi.get_category_name(self.bmi))
 
     def __str__(self) -> str:
-        return _(f"User #{self.user_id} information")
+        return _(f"{self.user_id}")
 
 
 class StatusChoices(models.IntegerChoices):
@@ -67,14 +69,22 @@ class UserAnnotation(models.Model):
     status = models.IntegerField(choices=StatusChoices, default=StatusChoices.ACTIVE)
 
     def __str__(self) -> str:
-        return f"{self.annotation_type}: {self.text}"
+        return f"{self.annotation_type}: {self.status}"
 
 
 class UserTrackingPoint(models.Model):
     user_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, db_index=True, related_name="tracking_points")
-    label = models.CharField(max_length=64, db_index=True)
-    date = models.DateField(auto_now=True)
+    label = models.ForeignKey("UserTrackingLabel", on_delete=models.CASCADE, db_index=True)
+    date = models.DateField(default=datetime.date.today)
     value = models.FloatField()
 
     def __str__(self) -> str:
         return f"{self.date}: {self.label} --> {self.value}"
+
+
+class UserTrackingLabel(models.Model):
+    label = models.CharField(max_length=64, primary_key=True)
+    description = models.TextField(max_length=144, blank=True)
+
+    def __str__(self) -> str:
+        return f"{self.label}"
