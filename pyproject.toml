@@ -3,11 +3,11 @@ name = "be-physical"
 version = "0.1.0"
 description = "new project description"
 requires-python = ">=3.12.0"
-dynamic = ["dependencies","optional-dependencies"] 
+dynamic = ["dependencies", "optional-dependencies"]
 
 [tool.setuptools.dynamic]
-dependencies = {file = ["requirements.txt"]}
-optional-dependencies = { dev = {file = ["requirements-dev.txt"]} }
+dependencies = { file = ["requirements.txt"] }
+optional-dependencies = { dev = { file = ["requirements-dev.txt"] } }
 
 [project.urls]
 Repository = "https://github.com/lpardey/be-physical"
@@ -15,11 +15,11 @@ Repository = "https://github.com/lpardey/be-physical"
 [tool.ruff]
 line-length = 119
 target-version = "py312"
-exclude = [".git","__pycache__"]
+exclude = [".git", "__pycache__"]
 
 [tool.ruff.lint]
 select = ["E4", "E7", "E9", "F", "I"]
-ignore = ["E231","E501","E203"]
+ignore = ["E231", "E501", "E203"]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -56,9 +56,11 @@ no_implicit_reexport = false
 
 strict_equality = true
 
-exclude = ['^setup\.py$', 'recipe_app/.*/migrations/.*\.py']
+exclude = ['^setup\.py$', 'be_physical/.*/migrations/.*\.py', '^build/.*']
 
-plugins = "mypy_django_plugin.main"
+plugins = ["mypy_django_plugin.main"]
+
+mypy_path = "./be_physical"
 
 [tool.django-stubs]
 django_settings_module = "be_physical.settings"
