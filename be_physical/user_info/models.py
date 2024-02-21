@@ -11,7 +11,7 @@ from . import bmi
 
 
 class UserInfo(models.Model):
-    user_id = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     height = models.DecimalField(
         max_digits=3,
         decimal_places=2,
@@ -41,7 +41,7 @@ class UserInfo(models.Model):
         return _(bmi.get_category_name(self.bmi))
 
     def __str__(self) -> str:
-        return _(f"{self.user_id}")
+        return _(f"{self.user}")
 
 
 class StatusChoices(models.IntegerChoices):
@@ -62,7 +62,7 @@ class AnnotationTypeChoices(models.IntegerChoices):
 
 
 class UserAnnotation(models.Model):
-    user_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, related_name="annotations")
+    user_info = models.ForeignKey(UserInfo, on_delete=models.CASCADE, related_name="annotations")
     text = models.TextField(max_length=500)
     annotation_type = models.IntegerField(choices=AnnotationTypeChoices, default=AnnotationTypeChoices.GENERAL)
     scope = models.IntegerField(choices=ScopeChoices, default=ScopeChoices.USER)
@@ -73,7 +73,7 @@ class UserAnnotation(models.Model):
 
 
 class UserTrackingPoint(models.Model):
-    user_id = models.ForeignKey(UserInfo, on_delete=models.CASCADE, db_index=True, related_name="tracking_points")
+    user_info = models.ForeignKey(UserInfo, on_delete=models.CASCADE, db_index=True, related_name="tracking_points")
     label = models.ForeignKey("UserTrackingLabel", on_delete=models.CASCADE, db_index=True)
     date = models.DateField(default=datetime.date.today)
     value = models.FloatField()
