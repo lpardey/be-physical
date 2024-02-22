@@ -69,7 +69,7 @@ class UserAnnotation(models.Model):
     status = models.IntegerField(choices=StatusChoices, default=StatusChoices.ACTIVE)
 
     def __str__(self) -> str:
-        return f"{self.annotation_type}: {self.status}"
+        return _(f"{self.annotation_type}: {self.status}")
 
 
 class UserTrackingPoint(models.Model):
@@ -79,7 +79,7 @@ class UserTrackingPoint(models.Model):
     value = models.FloatField()
 
     def __str__(self) -> str:
-        return f"{self.date}: {self.label} --> {self.value}"
+        return _(f"{self.date}: {self.label} --> {self.value}")
 
 
 class UserTrackingLabel(models.Model):
@@ -87,4 +87,4 @@ class UserTrackingLabel(models.Model):
     description = models.TextField(max_length=144, blank=True)
 
     def __str__(self) -> str:
-        return f"{self.label}"
+        return _(f"{self.label}")
