@@ -26,10 +26,11 @@ class UserInfo(models.Model):
 
     @property
     def bmi(self) -> float | None:
-        latest_weight = self.tracking_points.filter(label__label="weight").order_by("-date").first()
+        latest_weight_query = self.tracking_points.filter(label__label="weight").order_by("-date")
+        latest_weight_record = latest_weight_query.values_list("value", flat=True).first()
 
-        if latest_weight is not None:
-            return bmi.get_bmi(float(self.height), latest_weight.value)
+        if latest_weight_record is not None:
+            return bmi.get_bmi(float(self.height), latest_weight_record)
 
         return None
 
