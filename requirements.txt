@@ -1,3 +1,4 @@
 Django
 psycopg2
 pydantic
+email-validator # email validation from pydantic
