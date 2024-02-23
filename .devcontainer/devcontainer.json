@@ -31,7 +31,8 @@
 				"mhutchie.git-graph",
 				"ms-toolsai.jupyter",
 				"charliermarsh.ruff",
-				"tamasfe.even-better-toml"
+				"tamasfe.even-better-toml",
+				"Postman.postman-for-vscode"
 			]
 		}
 	}
