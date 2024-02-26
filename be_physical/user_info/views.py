@@ -8,7 +8,14 @@ from django.views.decorators.http import require_http_methods
 from pydantic import ValidationError
 
 from .models import UserInfo
-from .schemas import BiometricsSchema, TrackingPointSchema, TrackingPointsData, UserInfoSchema
+from .schemas import (
+    AnnotationSchema,
+    AnnotationsData,
+    BiometricsSchema,
+    TrackingPointSchema,
+    TrackingPointsData,
+    UserInfoSchema,
+)
 
 # Create your views here.
 
@@ -21,15 +28,11 @@ def index(request: HttpRequest) -> HttpResponse:
 @require_http_methods(["POST"])
 def create(request: HttpRequest) -> JsonResponse:
     username = request.POST["username"]
-    height = request.POST["height"]
-    birth_date = request.POST["birth_date"]
-    password = request.POST["password"]
-    email = request.POST["email"]
 
     if User.objects.filter(username).exists():
         return JsonResponse({"Error": f"Username '{username}' already exists."}, status=400)
 
-    user = User.objects.create_user(username, email, password, height, birth_date)
+    user = User.objects.create_user(**request.POST)
     user.save()
     return JsonResponse({"Success": "User created successfully"})
 
@@ -83,15 +86,21 @@ def get_tracking_points(request: HttpRequest) -> JsonResponse:
     return response
 
 
-async def get_filtered_tracking_point(request: HttpRequest) -> JsonResponse:
+async def get_tracking_points_by_filter(request: HttpRequest) -> JsonResponse:
     ...
 
 
-async def get_annotations(request: HttpRequest) -> JsonResponse:
-    ...
+@sync_to_async
+@require_http_methods(["GET"])
+def get_annotations(request: HttpRequest) -> JsonResponse:
+    user_info = get_object_or_404(UserInfo, user_id=request.GET["id"])
+    annotations = [AnnotationSchema(**annotation) for annotation in user_info.annotations.values()]
+    data = AnnotationsData(annotations=annotations)
+    response = JsonResponse(data.model_dump())
+    return response
 
 
-async def get_filtered_annotation(request: HttpRequest) -> JsonResponse:
+async def get_annotations_by_filter(request: HttpRequest) -> JsonResponse:
     ...
 
 
