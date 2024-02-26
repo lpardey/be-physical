@@ -52,14 +52,12 @@ def get_data(request: HttpRequest) -> JsonResponse:
 @require_http_methods(["GET"])
 def get_physical_biometrics(request: HttpRequest) -> JsonResponse:
     user_info = get_object_or_404(UserInfo, user_id=request.GET["id"])
-    weight_query = user_info.tracking_points.filter(label__label="weight").order_by("-date")
-    weight_record = weight_query.values_list("value", flat=True).first()
-    desired_weight_query = user_info.tracking_points.filter(label__label="desired_weight").order_by("-date")
-    desired_weight_record = desired_weight_query.values_list("value", flat=True).first()
+    weight_filter = user_info.tracking_points.filter(label__label="weight").order_by("-date")
+    desired_weight_filter = user_info.tracking_points.filter(label__label="desired_weight").order_by("-date")
     data = PhysicalBiometricsSchema(
         height=user_info.height,
-        weight=weight_record,
-        desired_weight=desired_weight_record,
+        weight=weight_filter.values_list("value", flat=True).first(),
+        desired_weight=desired_weight_filter.values_list("value", flat=True).first(),
         bmi=user_info.bmi,
         bmi_category=user_info.category_name_by_bmi,
     )
