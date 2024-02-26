@@ -8,7 +8,7 @@ from django.views.decorators.http import require_http_methods
 from pydantic import ValidationError
 
 from .models import UserInfo
-from .schemas import PhysicalBiometricsSchema, UserInfoSchema
+from .schemas import BiometricsSchema, TrackingPointSchema, TrackingPointsData, UserInfoSchema
 
 # Create your views here.
 
@@ -50,11 +50,11 @@ def get_data(request: HttpRequest) -> JsonResponse:
 
 @sync_to_async
 @require_http_methods(["GET"])
-def get_physical_biometrics(request: HttpRequest) -> JsonResponse:
+def get_biometrics(request: HttpRequest) -> JsonResponse:
     user_info = get_object_or_404(UserInfo, user_id=request.GET["id"])
     weight_filter = user_info.tracking_points.filter(label__label="weight").order_by("-date")
     desired_weight_filter = user_info.tracking_points.filter(label__label="desired_weight").order_by("-date")
-    data = PhysicalBiometricsSchema(
+    data = BiometricsSchema(
         height=user_info.height,
         weight=weight_filter.values_list("value", flat=True).first(),
         desired_weight=desired_weight_filter.values_list("value", flat=True).first(),
@@ -65,8 +65,22 @@ def get_physical_biometrics(request: HttpRequest) -> JsonResponse:
     return response
 
 
-async def get_tracking_points(request: HttpRequest) -> JsonResponse:
-    ...
+@sync_to_async
+@require_http_methods(["GET"])
+def get_tracking_points(request: HttpRequest) -> JsonResponse:
+    user_info = get_object_or_404(UserInfo, user_id=request.GET["id"])
+    tracking_points = [
+        TrackingPointSchema(
+            label=point.label.label,
+            description=point.label.description,
+            date=point.date,
+            value=point.value,
+        )
+        for point in user_info.tracking_points.all()
+    ]
+    data = TrackingPointsData(tracking_points=tracking_points)
+    response = JsonResponse(data.model_dump())
+    return response
 
 
 async def get_filtered_tracking_point(request: HttpRequest) -> JsonResponse:
