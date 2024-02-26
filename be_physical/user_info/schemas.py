@@ -1,6 +1,6 @@
 from datetime import date
 
-from pydantic import BaseModel, EmailStr, PositiveFloat
+from pydantic import BaseModel, EmailStr, Field, PositiveFloat
 
 
 class UserInfoSchema(BaseModel):
@@ -22,8 +22,19 @@ class TrackingPointSchema(BaseModel):
     label: str
     description: str
     date: date
-    value: PositiveFloat | None
+    value: float | None = Field(ge=0)
 
 
 class TrackingPointsData(BaseModel):
     tracking_points: list[TrackingPointSchema] | None
+
+
+class AnnotationSchema(BaseModel):
+    text: str
+    annotation_type: int = Field(ge=0)
+    scope: int = Field(ge=0)
+    status: int = Field(ge=0)
+
+
+class AnnotationsData(BaseModel):
+    annotations: list[AnnotationSchema] | None
