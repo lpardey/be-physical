@@ -8,6 +8,7 @@ urlpatterns = [
     path("data/", views.get_data, name="user_info_data"),
     path("biometrics/", views.get_biometrics, name="biometrics"),
     path("tracking_points", views.get_tracking_points, name="tracking_points"),
+    path("annotations/", views.get_annotations, name="annotations"),
     path("create/", views.create, name="create"),
 ]
 
