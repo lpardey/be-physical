@@ -10,9 +10,20 @@ class UserInfoSchema(BaseModel):
     creation_date: date
 
 
-class PhysicalBiometricsSchema(BaseModel):
+class BiometricsSchema(BaseModel):
     height: PositiveFloat
     weight: PositiveFloat | None
     desired_weight: PositiveFloat | None
     bmi: PositiveFloat | None
     bmi_category: str | None
+
+
+class TrackingPointSchema(BaseModel):
+    label: str
+    description: str
+    date: date
+    value: PositiveFloat | None
+
+
+class TrackingPointsData(BaseModel):
+    tracking_points: list[TrackingPointSchema] | None
