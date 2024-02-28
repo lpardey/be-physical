@@ -19,8 +19,10 @@ from django.urls import include, path
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("api-auth/", include("rest_framework.urls")),
     path("accounts/", include("django.contrib.auth.urls")),
     path("user_info/", include("user_info.urls")),
+    path("auth/", include("authentication.urls")),
 ]
 
 admin.site.site_title = "Be-Physical Site Admin (DEV)"
