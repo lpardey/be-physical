@@ -5,4 +5,5 @@ django_extensions
 django-stubs-ext
 mypy
 pytest
+pytest-django
 ruff
