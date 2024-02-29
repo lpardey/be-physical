@@ -20,21 +20,20 @@ from .serializers import (
 # Create your views here.
 
 
-@require_http_methods(["GET"])
-def index(request: HttpRequest) -> HttpResponse:
-    return HttpResponse("Hello, world. You're at the user_info index.")
+@api_view(["GET"])
+def index(request: Request) -> JsonResponse:
+    return JsonResponse("Hello, world. You're at the user_info index.")
 
 
-@require_http_methods(["POST"])
-def create(request: HttpRequest) -> JsonResponse:
+@api_view(["POST"])
+def create(request: Request) -> JsonResponse:
     username = request.POST["username"]
+    user, created = User.objects.get_or_create(username=username, defaults=request.POST)
 
-    if User.objects.filter(username).exists():
-        return JsonResponse({"Error": f"Username '{username}' already exists."}, status=status.HTTP_400_BAD_REQUEST)
+    if created:
+        return JsonResponse({"Success": "User created successfully"}, status=status.HTTP_201_CREATED)
 
-    user = User.objects.create_user(**request.POST)
-    user.save()
-    return JsonResponse({"Success": "User created successfully"})
+    return JsonResponse({"Error": f"Username '{username}' already exists."}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["GET"])
