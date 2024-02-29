@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from .models import AnnotationTypeChoices, ScopeChoices, StatusChoices, UserInfo
+from .models import AnnotationTypeChoices, ScopeChoices, StatusChoices, UserInfo, UserTrackingLabel, UserTrackingPoint
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -51,15 +51,27 @@ class BiometricsSerializer(serializers.ModelSerializer):
         return desired_weight_record
 
 
-class TrackingPointSerializer(serializers.Serializer):
-    label = serializers.CharField()
-    description = serializers.CharField()
-    date = serializers.DateField()
-    value = serializers.FloatField(allow_null=True, min_value=0)
+class TrackingLabelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserTrackingLabel
+        fields = ["label", "description"]
 
 
-class TrackingPointsData(serializers.Serializer):
-    tracking_points = list[TrackingPointSerializer] | None
+class UerTrackingPointSerializer(serializers.ModelSerializer):
+    label = serializers.CharField(source="label.label")
+    description = serializers.CharField(source="label.description")
+
+    class Meta:
+        model = UserTrackingPoint
+        fields = ["label", "description", "date", "value"]
+
+
+class TrackingPointsSerializer(serializers.ModelSerializer):
+    tracking_points = UerTrackingPointSerializer(many=True)
+
+    class Meta:
+        model = UserInfo
+        fields = ["tracking_points"]
 
 
 class AnnotationSerializer(serializers.Serializer):
