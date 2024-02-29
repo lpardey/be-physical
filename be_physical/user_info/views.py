@@ -12,8 +12,7 @@ from .serializers import (
     AnnotationsData,
     AnnotationSerializer,
     BiometricsSerializer,
-    TrackingPointsData,
-    TrackingPointSerializer,
+    TrackingPointsSerializer,
     UserInfoSerializer,
 )
 
@@ -54,20 +53,12 @@ def get_biometrics(request: Request) -> JsonResponse:
     return response
 
 
-@require_http_methods(["GET"])
-def get_tracking_points(request: HttpRequest) -> JsonResponse:
-    user_info = get_object_or_404(UserInfo, user_id=request.GET["id"])
-    tracking_points = [
-        TrackingPointSerializer(
-            label=point.label.label,
-            description=point.label.description,
-            date=point.date,
-            value=point.value,
-        )
-        for point in user_info.tracking_points.all()
-    ]
-    data = TrackingPointsData(tracking_points=tracking_points)
-    response = JsonResponse(data.model_dump())
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_tracking_points(request: Request) -> JsonResponse:
+    user_info = get_object_or_404(UserInfo, user=request.user)
+    serializer = TrackingPointsSerializer(user_info)
+    response = JsonResponse(serializer.data)
     return response
 
 
