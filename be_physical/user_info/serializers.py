@@ -59,11 +59,10 @@ class TrackingLabelSerializer(serializers.ModelSerializer):
 
 class UerTrackingPointSerializer(serializers.ModelSerializer):
     label = serializers.CharField(source="label.label")
-    description = serializers.CharField(source="label.description")
 
     class Meta:
         model = UserTrackingPoint
-        fields = ["label", "description", "date", "value"]
+        fields = ["label", "date", "value"]
 
 
 class TrackingPointsSerializer(serializers.ModelSerializer):
