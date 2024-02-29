@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.http import HttpRequest, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_http_methods
 from rest_framework import status
@@ -45,19 +45,12 @@ def get_data(request: Request) -> JsonResponse:
     return response
 
 
-@require_http_methods(["GET"])
-def get_biometrics(request: HttpRequest) -> JsonResponse:
-    user_info = get_object_or_404(UserInfo, user_id=request.GET["id"])
-    weight_filter = user_info.tracking_points.filter(label__label="weight").order_by("-date")
-    desired_weight_filter = user_info.tracking_points.filter(label__label="desired_weight").order_by("-date")
-    data = BiometricsSerializer(
-        height=user_info.height,
-        weight=weight_filter.values_list("value", flat=True).first(),
-        desired_weight=desired_weight_filter.values_list("value", flat=True).first(),
-        bmi=user_info.bmi,
-        bmi_category=user_info.category_name_by_bmi,
-    )
-    response = JsonResponse(data)
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_biometrics(request: Request) -> JsonResponse:
+    user_info = get_object_or_404(UserInfo, user=request.user)
+    serializer = BiometricsSerializer(user_info)
+    response = JsonResponse(serializer.data)
     return response
 
 
