@@ -7,8 +7,6 @@ from django.utils.translation import gettext as _
 
 from . import bmi
 
-# Create your models here.
-
 
 class UserInfo(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)

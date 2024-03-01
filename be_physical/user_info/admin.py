@@ -2,10 +2,8 @@ from django.contrib import admin
 
 from .models import UserAnnotation, UserInfo, UserTrackingLabel, UserTrackingPoint
 
-# Register your models here.
 
-
-class UserAnnotationInline(admin.TabularInline):  # type: ignore
+class UserAnnotationInline(admin.TabularInline):
     model = UserAnnotation
     extra = 0
 

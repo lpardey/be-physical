@@ -40,14 +40,14 @@ class BiometricsSerializer(serializers.ModelSerializer):
         model = UserInfo
         fields = ["height", "weight", "desired_weight", "bmi", "bmi_category"]
 
-    def get_weight(self, user_info: UserInfo):
+    def get_weight(self, user_info: UserInfo) -> float | None:
         latest_weight_filter = user_info.tracking_points.filter(label__label="weight").order_by("-date")
-        latest_weight_record = latest_weight_filter.values_list("value", flat=True).first()
+        latest_weight_record: float | None = latest_weight_filter.values_list("value", flat=True).first()
         return latest_weight_record
 
-    def get_desired_weight(self, user_info: UserInfo):
+    def get_desired_weight(self, user_info: UserInfo) -> float | None:
         desired_weight_filter = user_info.tracking_points.filter(label__label="desired_weight").order_by("-date")
-        desired_weight_record = desired_weight_filter.values_list("value", flat=True).first()
+        desired_weight_record: float | None = desired_weight_filter.values_list("value", flat=True).first()
         return desired_weight_record
 
 
