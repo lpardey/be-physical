@@ -57,7 +57,7 @@ class TrackingLabelSerializer(serializers.ModelSerializer):
         fields = ["label", "description"]
 
 
-class UerTrackingPointSerializer(serializers.ModelSerializer):
+class UserTrackingPointSerializer(serializers.ModelSerializer):
     label = serializers.CharField(source="label.label")
 
     class Meta:
@@ -66,7 +66,7 @@ class UerTrackingPointSerializer(serializers.ModelSerializer):
 
 
 class TrackingPointsSerializer(serializers.ModelSerializer):
-    tracking_points = UerTrackingPointSerializer(many=True)
+    tracking_points = UserTrackingPointSerializer(many=True)
 
     class Meta:
         model = UserInfo
