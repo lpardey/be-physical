@@ -26,7 +26,7 @@ def test_get_data(user_info: UserInfo, api_client_authenticated: APIClient) -> N
 
 
 @pytest.mark.django_db
-def test_get_data_no_auth(user_info: UserInfo, api_client: APIClient) -> None:
+def test_get_data_no_auth(api_client: APIClient) -> None:
     expected_response = {"detail": "Authentication credentials were not provided."}
 
     url = reverse(f"{app_name}:{GET_DATA_VIEW_NAME}")
