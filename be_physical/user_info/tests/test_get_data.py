@@ -5,18 +5,13 @@ from rest_framework.response import Response
 from rest_framework.test import APIClient
 
 from ..models import UserInfo
+from ..serializers import UserInfoSerializer
 from ..urls import GET_DATA_VIEW_NAME, app_name
 
 
 @pytest.mark.django_db
-def test_get_data(user_info: UserInfo, api_client_authenticated: APIClient) -> None:
-    expected_response = {
-        "username": user_info.user.username,
-        "email": user_info.user.email,
-        "height": user_info.height,
-        "birth_date": user_info.birth_date.isoformat(),
-        "date_joined": user_info.user.date_joined.replace(tzinfo=None).isoformat() + "Z",
-    }
+def test_get_data(basic_user_info: UserInfo, api_client_authenticated: APIClient) -> None:
+    expected_response = UserInfoSerializer(basic_user_info).data
 
     url = reverse(f"{app_name}:{GET_DATA_VIEW_NAME}")
     response: Response = api_client_authenticated.get(url)
