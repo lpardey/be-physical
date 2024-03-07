@@ -23,17 +23,25 @@ class UserInfo(models.Model):
     tracking_points: models.QuerySet["UserTrackingPoint"]
 
     @property
-    def bmi(self) -> float | None:
-        latest_weight_filter = self.tracking_points.filter(label__label="weight").order_by("-date")
-        latest_weight_record = latest_weight_filter.values_list("value", flat=True).first()
+    def weight(self) -> float | None:
+        weight_tracking_point = self.tracking_points.filter(label__label="weight").order_by("-date").first()
 
-        if latest_weight_record is not None:
-            return bmi.get_bmi(float(self.height), latest_weight_record)
+        if weight_tracking_point is not None:
+            return weight_tracking_point.value
 
         return None
 
     @property
-    def category_name_by_bmi(self) -> str | None:
+    def bmi(self) -> float | None:
+        last_weight = self.weight
+
+        if last_weight is not None:
+            return bmi.get_bmi(float(self.height), last_weight)
+
+        return None
+
+    @property
+    def bmi_category(self) -> str | None:
         if self.bmi is None:
             return None
 
