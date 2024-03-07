@@ -29,3 +29,14 @@ def test_get_data_no_auth(api_client: APIClient) -> None:
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
     assert response.json() == expected_response
+
+
+@pytest.mark.django_db
+def test_get_data_404(api_client_authenticated: APIClient) -> None:
+    expected_response = {"detail": "Not found."}
+
+    url = reverse(f"{app_name}:{GET_DATA_VIEW_NAME}")
+    response: Response = api_client_authenticated.get(url)
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json() == expected_response
