@@ -18,8 +18,8 @@ class UserTrackingPointInline(admin.TabularInline):  # type: ignore
 class UserInfoAdmin(admin.ModelAdmin[UserInfo]):
     search_fields = ["user__username"]
     inlines = [UserAnnotationInline, UserTrackingPointInline]
-    readonly_fields = ["bmi", "category_name_by_bmi"]
-    list_display = ["user", "height", "birth_date", "bmi", "category_name_by_bmi"]
+    readonly_fields = ["bmi", "bmi_category"]
+    list_display = ["user", "height", "birth_date", "bmi", "bmi_category"]
     list_filter = ["user", "height", "birth_date"]
 
 
