@@ -32,23 +32,23 @@ class UserInfoSerializer(serializers.ModelSerializer):
 
 
 class BiometricsSerializer(serializers.ModelSerializer):
-    weight = serializers.SerializerMethodField()
+    weight = serializers.FloatField()
     desired_weight = serializers.SerializerMethodField()
-    bmi_category = serializers.CharField(source="category_name_by_bmi")
+    bmi_category = serializers.CharField()
 
     class Meta:
         model = UserInfo
         fields = ["height", "weight", "desired_weight", "bmi", "bmi_category"]
 
-    def get_weight(self, user_info: UserInfo) -> float | None:
-        latest_weight_filter = user_info.tracking_points.filter(label__label="weight").order_by("-date")
-        latest_weight_record: float | None = latest_weight_filter.values_list("value", flat=True).first()
-        return latest_weight_record
-
     def get_desired_weight(self, user_info: UserInfo) -> float | None:
-        desired_weight_filter = user_info.tracking_points.filter(label__label="desired_weight").order_by("-date")
-        desired_weight_record: float | None = desired_weight_filter.values_list("value", flat=True).first()
-        return desired_weight_record
+        desired_weight_tracking_point = (
+            user_info.tracking_points.filter(label__label="desired_weight").order_by("-date").first()
+        )
+
+        if desired_weight_tracking_point is not None:
+            return desired_weight_tracking_point.value
+
+        return None
 
 
 class TrackingLabelSerializer(serializers.ModelSerializer):
@@ -58,7 +58,7 @@ class TrackingLabelSerializer(serializers.ModelSerializer):
 
 
 class UserTrackingPointSerializer(serializers.ModelSerializer):
-    label = serializers.CharField(source="label.label")
+    label = serializers.CharField()
 
     class Meta:
         model = UserTrackingPoint
@@ -71,14 +71,3 @@ class TrackingPointsSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserInfo
         fields = ["tracking_points"]
-
-
-class AnnotationSerializer(serializers.Serializer):
-    text = serializers.CharField()
-    annotation_type = serializers.ChoiceField(choices=AnnotationTypeChoices.choices)
-    scope = serializers.ChoiceField(choices=ScopeChoices.choices)
-    status = serializers.ChoiceField(choices=StatusChoices.choices)
-
-
-class AnnotationsData(serializers.Serializer):
-    annotations = list[AnnotationSerializer] | None
