@@ -44,7 +44,7 @@ def basic_user_info(user: User, db: None) -> UserInfo:
 @pytest.fixture
 def user_info_with_biometrics(user: User, db: None) -> UserInfo:
     user_info = UserInfo.objects.create(user=user, height="1.86", birth_date=datetime.date.fromisoformat("1989-09-01"))
-    weight_tracking_label = UserTrackingLabel.objects.create(label="weight", description="Today's measure")
+    weight_tracking_label = UserTrackingLabel.objects.create(label="weight", description="Measure in kgg")
     UserTrackingPoint.objects.create(
         user_info=user_info,
         label=weight_tracking_label,
