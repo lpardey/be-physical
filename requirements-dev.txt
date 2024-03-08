@@ -3,6 +3,7 @@ django_extensions
 # mypy fix.
 # https://stackoverflow.com/questions/67965529/mypy-missing-type-parameters-for-generic-type-modeladmin
 django-stubs-ext
+djangorestframework-stubs[compatible-mypy]
 mypy
 pytest
 pytest-django
