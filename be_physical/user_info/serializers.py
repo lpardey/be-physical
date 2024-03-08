@@ -1,10 +1,14 @@
+from typing import Any, Iterable
+
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from .models import AnnotationTypeChoices, ScopeChoices, StatusChoices, UserInfo, UserTrackingLabel, UserTrackingPoint
+from .models import UserInfo, UserTrackingLabel, UserTrackingPoint
+
+GroupedTrackingPoint = tuple[str, Iterable[UserTrackingPoint]]
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer[User]):
     class Meta:
         model = User
         fields = [
@@ -21,7 +25,7 @@ class UserSerializer(serializers.ModelSerializer):
         ]
 
 
-class UserInfoSerializer(serializers.ModelSerializer):
+class UserInfoSerializer(serializers.ModelSerializer[UserInfo]):
     username = serializers.CharField(source="user.username")
     email = serializers.EmailField(source="user.email")
     date_joined = serializers.DateTimeField(source="user.date_joined")
@@ -31,7 +35,7 @@ class UserInfoSerializer(serializers.ModelSerializer):
         fields = ["username", "email", "height", "birth_date", "date_joined"]
 
 
-class BiometricsSerializer(serializers.ModelSerializer):
+class BiometricsSerializer(serializers.ModelSerializer[UserInfo]):
     weight = serializers.FloatField()
     desired_weight = serializers.SerializerMethodField()
     bmi_category = serializers.CharField()
@@ -51,13 +55,13 @@ class BiometricsSerializer(serializers.ModelSerializer):
         return None
 
 
-class TrackingLabelSerializer(serializers.ModelSerializer):
+class TrackingLabelSerializer(serializers.ModelSerializer[UserTrackingLabel]):
     class Meta:
         model = UserTrackingLabel
         fields = ["label", "description"]
 
 
-class UserTrackingPointSerializer(serializers.ModelSerializer):
+class UserTrackingPointSerializer(serializers.ModelSerializer[UserTrackingPoint]):
     label = serializers.CharField()
 
     class Meta:
@@ -65,9 +69,46 @@ class UserTrackingPointSerializer(serializers.ModelSerializer):
         fields = ["label", "date", "value"]
 
 
-class TrackingPointsSerializer(serializers.ModelSerializer):
+class TrackingPointsSerializer(serializers.ModelSerializer[UserInfo]):
     tracking_points = UserTrackingPointSerializer(many=True)
 
     class Meta:
         model = UserInfo
         fields = ["tracking_points"]
+
+
+class SimplifiedTrackingPointSerializer(serializers.ModelSerializer[UserTrackingPoint]):
+    class Meta:
+        model = UserTrackingPoint
+        fields = ["date", "value"]
+
+
+class GroupedTrackingPointSerializer(serializers.Serializer[GroupedTrackingPoint]):
+    label = serializers.SerializerMethodField()
+    values = serializers.SerializerMethodField()
+
+    def get_label(self, data: GroupedTrackingPoint) -> str:
+        return data[0]
+
+    def get_values(self, data: GroupedTrackingPoint) -> dict[str, Any]:
+        return SimplifiedTrackingPointSerializer(data[1], many=True).data
+
+
+class GroupedTrackingPointsSerializer(serializers.Serializer[Iterable[GroupedTrackingPoint]]):
+    tracking_points = serializers.SerializerMethodField()
+
+    def get_tracking_points(self, data: Iterable[GroupedTrackingPoint]) -> dict[str, Any]:
+        return GroupedTrackingPointSerializer(data, many=True).data
+
+
+def serialize_grouped_tracking_groups(data: Iterable[GroupedTrackingPoint]) -> dict[str, Any]:
+    serialized_data = {
+        "tracking_points": [
+            {
+                "label": label,
+                "values": [{"date": value.date, "value": value.value} for value in values],
+            }
+            for label, values in data
+        ]
+    }
+    return serialized_data
