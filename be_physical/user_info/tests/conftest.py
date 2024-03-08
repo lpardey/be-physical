@@ -27,6 +27,7 @@ def user(db: None) -> User:
         pytest.param("basic_user_info", id="User without biometrics and annotations"),
         pytest.param("user_info_with_biometrics", id="User with biometrics"),
         pytest.param("user_info_with_annotations", id="User with annotations"),
+        pytest.param("user_info_with_multiple_tracking_points", id="User with multiple tracking points"),
         pytest.param("complete_user_info", id="User with biometrics and annotations"),
     ]
 )
@@ -68,6 +69,31 @@ def user_info_with_annotations(user: User, db: None) -> UserInfo:
 
 
 @pytest.fixture
+def user_info_with_multiple_tracking_points(user: User, db: None) -> UserInfo:
+    user_info = UserInfo.objects.create(user=user, height="1.86", birth_date=datetime.date.fromisoformat("1989-09-01"))
+    push_ups_tracking_label = UserTrackingLabel.objects.create(label="Push ups", description="Push ups label")
+    UserTrackingPoint.objects.create(
+        user_info=user_info,
+        label=push_ups_tracking_label,
+        date=datetime.date.today(),
+        value=5,
+    )
+    UserTrackingPoint.objects.create(
+        user_info=user_info,
+        label=push_ups_tracking_label,
+        date=datetime.date.today(),
+        value=6,
+    )
+    UserTrackingPoint.objects.create(
+        user_info=user_info,
+        label=push_ups_tracking_label,
+        date=datetime.date.today(),
+        value=7,
+    )
+    return user_info
+
+
+@pytest.fixture
 def complete_user_info(user: User, db: None) -> UserInfo:
     user_info = UserInfo.objects.create(user=user, height="1.86", birth_date=datetime.date.fromisoformat("1989-09-01"))
     weight_tracking_label = UserTrackingLabel.objects.create(label="weight", description="Today's measure")
@@ -92,6 +118,25 @@ def complete_user_info(user: User, db: None) -> UserInfo:
         status=StatusChoices.ACTIVE,
     )
     return user_info
+
+
+@pytest.fixture
+def user_tracking_label(db: None) -> UserTrackingLabel:
+    return UserTrackingLabel.objects.create(label="Push ups", description="Number of push ups")
+
+
+@pytest.fixture
+def user_tracking_point(
+    db: None,
+    user_tracking_label: UserTrackingLabel,
+    basic_user_info: UserInfo,
+) -> UserTrackingPoint:
+    return UserTrackingPoint.objects.create(
+        user_info=basic_user_info,
+        label=user_tracking_label,
+        date=datetime.date.today(),
+        value=5.0,
+    )
 
 
 @pytest.fixture
