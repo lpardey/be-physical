@@ -56,9 +56,13 @@ no_implicit_reexport = false
 
 strict_equality = true
 
-exclude = ['be_physical/.*/migrations/.*\.py', '^build/.*']
+exclude = [
+    'be_physical/.*/migrations/.*\.py',
+    '^build/.*',
+    'be_physical/.*/tests/.*',
+]
 
-plugins = ["mypy_django_plugin.main"]
+plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
 
 mypy_path = "./be_physical"
 
