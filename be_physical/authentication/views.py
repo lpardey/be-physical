@@ -24,7 +24,7 @@ def login(request: Request) -> JsonResponse:
 @permission_classes([IsAuthenticated])
 def logout(request: Request) -> JsonResponse:
     try:
-        token: BearerToken = request.auth
+        token = request.auth
         token.delete()
         return JsonResponse({"detail": "Logout successful"}, status=status.HTTP_200_OK)
 
