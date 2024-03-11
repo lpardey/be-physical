@@ -10,7 +10,7 @@ from rest_framework.request import Request
 
 from .models import UserInfo
 from .serializers import (
-    # AnnotationSerializer,
+    AnnotationsSerializer,
     BiometricsSerializer,
     # GroupedTrackingPointSerializer,
     TrackingPointsSerializer,
@@ -99,6 +99,15 @@ def get_grouped_tracking_points(request: Request) -> JsonResponse:
     data_serialized = serialize_grouped_tracking_groups(points_groups)
     # serializer = GroupedTrackingPointsSerializer(points_groups)
     response = JsonResponse(data_serialized)
+    return response
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_annotations(request: HttpRequest) -> JsonResponse:
+    user_info = get_object_or_404(UserInfo, user=request.user)
+    serializer = AnnotationsSerializer(user_info)
+    response = JsonResponse(serializer.data)
     return response
 
 
