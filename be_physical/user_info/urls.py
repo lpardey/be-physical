@@ -20,5 +20,6 @@ urlpatterns = [
         views.get_grouped_tracking_points,
         name=GET_GROUPED_TRACKING_POINTS_VIEW_NAME,
     ),
+    path("annotations/", views.get_annotations, name=GET_ANNOTATIONS_VIEW_NAME),
     path("create/", views.create, name=CREATE_VIEW_NAME),
 ]
