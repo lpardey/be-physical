@@ -32,13 +32,11 @@ class UserInfoSerializer(serializers.ModelSerializer[UserInfo]):
 
     class Meta:
         model = UserInfo
-        fields = ["username", "email", "height", "birth_date", "date_joined"]
+        fields = ["username", "email", "birth_date", "date_joined"]
 
 
 class BiometricsSerializer(serializers.ModelSerializer[UserInfo]):
-    weight = serializers.FloatField()
-    desired_weight = serializers.SerializerMethodField()
-    bmi_category = serializers.CharField()
+    desired_weight = serializers.SerializerMethodField(method_name="get_desired_weight")
 
     class Meta:
         model = UserInfo
@@ -58,12 +56,10 @@ class BiometricsSerializer(serializers.ModelSerializer[UserInfo]):
 class TrackingLabelSerializer(serializers.ModelSerializer[UserTrackingLabel]):
     class Meta:
         model = UserTrackingLabel
-        fields = ["label", "description"]
+        fields = "__all__"  # All fields in the model should be used
 
 
 class UserTrackingPointSerializer(serializers.ModelSerializer[UserTrackingPoint]):
-    label = serializers.CharField()
-
     class Meta:
         model = UserTrackingPoint
         fields = ["label", "date", "value"]
@@ -84,8 +80,8 @@ class SimplifiedTrackingPointSerializer(serializers.ModelSerializer[UserTracking
 
 
 class GroupedTrackingPointSerializer(serializers.Serializer[GroupedTrackingPoint]):
-    label = serializers.SerializerMethodField()
-    values = serializers.SerializerMethodField()
+    label = serializers.SerializerMethodField(method_name="get_label")
+    values = serializers.SerializerMethodField(method_name="get_values")
 
     def get_label(self, data: GroupedTrackingPoint) -> str:
         return data[0]
@@ -95,7 +91,7 @@ class GroupedTrackingPointSerializer(serializers.Serializer[GroupedTrackingPoint
 
 
 class GroupedTrackingPointsSerializer(serializers.Serializer[Iterable[GroupedTrackingPoint]]):
-    tracking_points = serializers.SerializerMethodField()
+    tracking_points = serializers.SerializerMethodField(method_name="get_tracking_points")
 
     def get_tracking_points(self, data: Iterable[GroupedTrackingPoint]) -> dict[str, Any]:
         return GroupedTrackingPointSerializer(data, many=True).data
