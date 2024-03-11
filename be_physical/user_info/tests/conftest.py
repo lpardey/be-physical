@@ -94,6 +94,33 @@ def user_info_with_many_tracking_points(user: User, db: None) -> UserInfo:
 
 
 @pytest.fixture
+def user_info_with_many_annotations(user: User, db: None) -> UserInfo:
+    user_info = UserInfo.objects.create(user=user, height="1.86", birth_date=datetime.date.fromisoformat("1989-09-01"))
+    UserAnnotation.objects.create(
+        user_info=user_info,
+        text="My 2024 purpose is to run all weekends",
+        annotation_type=AnnotationTypeChoices.GOAL,
+        scope=ScopeChoices.USER,
+        status=StatusChoices.ACTIVE,
+    )
+    UserAnnotation.objects.create(
+        user_info=user_info,
+        text="Next week I'll get out of bed at 5:00 to workout",
+        annotation_type=AnnotationTypeChoices.GOAL,
+        scope=ScopeChoices.USER,
+        status=StatusChoices.ACTIVE,
+    )
+    UserAnnotation.objects.create(
+        user_info=user_info,
+        text="Drink 5 L of water every day",
+        annotation_type=AnnotationTypeChoices.TRAINER_ANNOTATION,
+        scope=ScopeChoices.TRAINER,
+        status=StatusChoices.INACTIVE,
+    )
+    return user_info
+
+
+@pytest.fixture
 def complete_user_info(user: User, db: None) -> UserInfo:
     user_info = UserInfo.objects.create(user=user, height="1.86", birth_date=datetime.date.fromisoformat("1989-09-01"))
     weight_tracking_label = UserTrackingLabel.objects.create(label="weight", description="Today's measure")
