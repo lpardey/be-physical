@@ -3,7 +3,26 @@ import datetime
 import pytest
 
 from ..models import UserInfo, UserTrackingPoint
-from ..serializers import BiometricsSerializer, GroupedTrackingPointSerializer, SimplifiedTrackingPointSerializer
+from ..serializers import (
+    BiometricsSerializer,
+    GroupedTrackingPointSerializer,
+    SimplifiedTrackingPointSerializer,
+    UserInfoSerializer,
+)
+
+
+@pytest.mark.django_db
+def test_user_info_serializer(basic_user_info: UserInfo):
+    data = UserInfoSerializer(basic_user_info).data
+    data["date_joined"] = None  # Set to 'None' given its dynamic nature.
+    expected_data = {
+        "username": "John",
+        "email": "john@test.com",
+        "birth_date": str(datetime.date.fromisoformat("1989-09-01")),
+        "date_joined": None,
+    }
+
+    assert data == expected_data
 
 
 @pytest.mark.django_db
