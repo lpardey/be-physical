@@ -27,7 +27,7 @@ def user(db: None) -> User:
         pytest.param("basic_user_info", id="User without biometrics and annotations"),
         pytest.param("user_info_with_biometrics", id="User with biometrics"),
         pytest.param("user_info_with_annotations", id="User with annotations"),
-        pytest.param("user_info_with_multiple_tracking_points", id="User with multiple tracking points"),
+        pytest.param("user_info_with_many_tracking_points", id="User with multiple tracking points"),
         pytest.param("complete_user_info", id="User with biometrics and annotations"),
     ]
 )
@@ -69,7 +69,7 @@ def user_info_with_annotations(user: User, db: None) -> UserInfo:
 
 
 @pytest.fixture
-def user_info_with_multiple_tracking_points(user: User, db: None) -> UserInfo:
+def user_info_with_many_tracking_points(user: User, db: None) -> UserInfo:
     user_info = UserInfo.objects.create(user=user, height="1.86", birth_date=datetime.date.fromisoformat("1989-09-01"))
     push_ups_tracking_label = UserTrackingLabel.objects.create(label="Push ups", description="Push ups label")
     UserTrackingPoint.objects.create(
