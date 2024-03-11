@@ -3,7 +3,7 @@ from typing import Any, Iterable
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from .models import UserInfo, UserTrackingLabel, UserTrackingPoint
+from .models import UserAnnotation, UserInfo, UserTrackingLabel, UserTrackingPoint
 
 GroupedTrackingPoint = tuple[str, Iterable[UserTrackingPoint]]
 
@@ -108,3 +108,17 @@ def serialize_grouped_tracking_groups(data: Iterable[GroupedTrackingPoint]) -> d
         ]
     }
     return serialized_data
+
+
+class UserAnnotationSerializer(serializers.ModelSerializer[UserAnnotation]):
+    class Meta:
+        model = UserAnnotation
+        fields = ["text", "annotation_type", "scope", "status"]
+
+
+class AnnotationsSerializer(serializers.ModelSerializer[UserInfo]):
+    annotations = UserAnnotationSerializer(many=True)
+
+    class Meta:
+        model = UserInfo
+        fields = ["annotations"]
