@@ -1,14 +1,15 @@
 from django.contrib import admin
+from django.db import models
 
 from .models import UserAnnotation, UserInfo, UserTrackingLabel, UserTrackingPoint
 
 
-class UserAnnotationInline(admin.TabularInline):
+class UserAnnotationInline(admin.TabularInline[UserAnnotation, models.Model]):
     model = UserAnnotation
     extra = 0
 
 
-class UserTrackingPointInline(admin.TabularInline):  # type: ignore
+class UserTrackingPointInline(admin.TabularInline[UserTrackingPoint, models.Model]):
     model = UserTrackingPoint
     extra = 0
     ordering = ["label", "-date"]
