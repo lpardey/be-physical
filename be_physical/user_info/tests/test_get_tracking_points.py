@@ -10,7 +10,7 @@ from ..urls import GET_TRACKING_POINTS_VIEW_NAME, app_name
 
 
 @pytest.mark.django_db
-def test_get_tracking_points(user_info: UserInfo, api_client_authenticated: APIClient) -> None:
+def test_get_tracking_points(user_info: UserInfo, api_client_authenticated: APIClient):
     expected_response = TrackingPointsSerializer(user_info).data
 
     url = reverse(f"{app_name}:{GET_TRACKING_POINTS_VIEW_NAME}")
@@ -21,7 +21,7 @@ def test_get_tracking_points(user_info: UserInfo, api_client_authenticated: APIC
 
 
 @pytest.mark.django_db
-def test_get_tracking_points_no_auth(api_client: APIClient) -> None:
+def test_get_tracking_points_no_auth(api_client: APIClient):
     expected_response = {"detail": "Authentication credentials were not provided."}
 
     url = reverse(f"{app_name}:{GET_TRACKING_POINTS_VIEW_NAME}")
@@ -32,7 +32,7 @@ def test_get_tracking_points_no_auth(api_client: APIClient) -> None:
 
 
 @pytest.mark.django_db
-def test_get_tracking_points_404(api_client_authenticated: APIClient) -> None:
+def test_get_tracking_points_404(api_client_authenticated: APIClient):
     expected_response = {"detail": "Not found."}
 
     url = reverse(f"{app_name}:{GET_TRACKING_POINTS_VIEW_NAME}")

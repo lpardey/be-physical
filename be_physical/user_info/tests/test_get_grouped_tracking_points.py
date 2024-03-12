@@ -14,7 +14,7 @@ from ..views import LABELS_QUERY_PARAM
 def test_get_grouped_tracking_points(
     user_tracking_point: UserTrackingPoint,
     api_client_authenticated: APIClient,
-) -> None:
+):
     input_data = [(user_tracking_point.label.label, [user_tracking_point])]  # Mimicking the itertools.groupby iterable
     expected_response = GroupedTrackingPointsSerializer(input_data).data
 
@@ -26,7 +26,7 @@ def test_get_grouped_tracking_points(
 
 
 @pytest.mark.django_db
-def test_get_grouped_tracking_points_no_auth(api_client: APIClient) -> None:
+def test_get_grouped_tracking_points_no_auth(api_client: APIClient):
     expected_response = {"detail": "Authentication credentials were not provided."}
 
     url = reverse(f"{app_name}:{GET_GROUPED_TRACKING_POINTS_VIEW_NAME}")
@@ -37,7 +37,7 @@ def test_get_grouped_tracking_points_no_auth(api_client: APIClient) -> None:
 
 
 @pytest.mark.django_db
-def test_get_grouped_tracking_points_404(api_client_authenticated: APIClient) -> None:
+def test_get_grouped_tracking_points_404(api_client_authenticated: APIClient):
     expected_response = {"detail": "Not found."}
 
     url = reverse(f"{app_name}:{GET_GROUPED_TRACKING_POINTS_VIEW_NAME}")

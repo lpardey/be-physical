@@ -10,7 +10,7 @@ from ..urls import GET_BIOMETRICS_VIEW_NAME, app_name
 
 
 @pytest.mark.django_db
-def test_get_biometrics(user_info: UserInfo, api_client_authenticated: APIClient) -> None:
+def test_get_biometrics(user_info: UserInfo, api_client_authenticated: APIClient):
     expected_response = BiometricsSerializer(user_info).data
     url = reverse(f"{app_name}:{GET_BIOMETRICS_VIEW_NAME}")
     response: Response = api_client_authenticated.get(url)
@@ -20,7 +20,7 @@ def test_get_biometrics(user_info: UserInfo, api_client_authenticated: APIClient
 
 
 @pytest.mark.django_db
-def test_get_biometrics_no_auth(api_client: APIClient) -> None:
+def test_get_biometrics_no_auth(api_client: APIClient):
     expected_response = {"detail": "Authentication credentials were not provided."}
 
     url = reverse(f"{app_name}:{GET_BIOMETRICS_VIEW_NAME}")
@@ -31,7 +31,7 @@ def test_get_biometrics_no_auth(api_client: APIClient) -> None:
 
 
 @pytest.mark.django_db
-def test_get_biometrics_404(api_client_authenticated: APIClient) -> None:
+def test_get_biometrics_404(api_client_authenticated: APIClient):
     expected_response = {"detail": "Not found."}
 
     url = reverse(f"{app_name}:{GET_BIOMETRICS_VIEW_NAME}")
