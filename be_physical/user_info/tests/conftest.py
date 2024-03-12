@@ -152,6 +152,18 @@ def user_tracking_point(
         value=5.0,
     )
 
+@pytest.fixture
+def user_annotation(
+    db: None,
+    basic_user_info: UserInfo,
+) -> UserAnnotation:
+    return UserTrackingPoint.objects.create(
+        user_info=basic_user_info,
+        label=user_tracking_label,
+        date=datetime.date.today(),
+        value=5.0,
+    )
+
 
 @pytest.fixture
 def api_client() -> APIClient:
