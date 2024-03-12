@@ -26,8 +26,8 @@ def user(db: None) -> User:
     params=[
         pytest.param("basic_user_info", id="User without biometrics and annotations"),
         pytest.param("user_info_with_biometrics", id="User with biometrics"),
-        pytest.param("user_info_with_annotations", id="User with annotations"),
-        pytest.param("user_info_with_many_tracking_points", id="User with multiple tracking points"),
+        pytest.param("user_info_with_many_tracking_points", id="User with many tracking points"),
+        pytest.param("user_info_with_many_annotations", id="User with many annotations"),
         pytest.param("complete_user_info", id="User with biometrics and annotations"),
     ]
 )
@@ -51,19 +51,6 @@ def user_info_with_biometrics(user: User, db: None) -> UserInfo:
         label=weight_tracking_label,
         date=datetime.date.today(),
         value=90.0,
-    )
-    return user_info
-
-
-@pytest.fixture
-def user_info_with_annotations(user: User, db: None) -> UserInfo:
-    user_info = UserInfo.objects.create(user=user, height="1.86", birth_date=datetime.date.fromisoformat("1989-09-01"))
-    UserAnnotation.objects.create(
-        user_info=user_info,
-        text="I'm gonna run 10 miles today",
-        annotation_type=AnnotationTypeChoices.GOAL,
-        scope=ScopeChoices.USER,
-        status=StatusChoices.ACTIVE,
     )
     return user_info
 
