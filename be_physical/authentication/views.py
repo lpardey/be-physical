@@ -1,32 +1,32 @@
 from django.contrib.auth import authenticate
-from django.http import JsonResponse
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
+from rest_framework.response import Response
 
 from .models import BearerToken
 
 
 @api_view(["POST"])
-def login(request: Request) -> JsonResponse:
+def login(request: Request) -> Response:
     user = authenticate(username=request.POST["username"], password=request.POST["password"])
 
     if user is None:
-        return JsonResponse({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
     token, created = BearerToken.objects.get_or_create(user=user)
 
-    return JsonResponse({"token": token.key})
+    return Response({"token": token.key})
 
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-def logout(request: Request) -> JsonResponse:
+def logout(request: Request) -> Response:
     try:
         token = request.auth
         token.delete()
-        return JsonResponse({"detail": "Logout successful"}, status=status.HTTP_200_OK)
+        return Response({"detail": "Logout successful"}, status=status.HTTP_200_OK)
 
     except token.DoesNotExist as e:
-        return JsonResponse({"detail": f"{e}"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail": f"{e}"}, status=status.HTTP_400_BAD_REQUEST)
