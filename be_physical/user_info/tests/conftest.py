@@ -152,6 +152,7 @@ def user_tracking_point(
         value=5.0,
     )
 
+
 @pytest.fixture
 def user_annotation(
     db: None,
@@ -176,7 +177,7 @@ def user_token(db: None, user: User) -> str:
     return str(token)
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture()
 def api_client_authenticated(api_client: APIClient, user: User) -> APIClient:
     api_client.force_authenticate(user=user)
     return api_client
