@@ -2,12 +2,10 @@ import datetime
 
 import pytest
 
-from ..models import UserInfo, UserTrackingPoint
+from ..models import UserInfo
 from ..serializers import (
     AnnotationsSerializer,
     BiometricsSerializer,
-    GroupedTrackingPointSerializer,
-    SimplifiedTrackingPointSerializer,
     TrackingPointsSerializer,
     UserInfoSerializer,
 )
@@ -49,21 +47,6 @@ def test_tracking_points_serializer(user_info_with_many_tracking_points: UserInf
             for point in user_info_with_many_tracking_points.tracking_points.all()
         ]
     }
-    assert data == expected_data
-
-
-@pytest.mark.django_db
-def test_simplified_tracking_points_serializer(user_tracking_point: UserTrackingPoint):
-    data = SimplifiedTrackingPointSerializer(user_tracking_point).data
-    expected_data = {"date": str(datetime.date.today()), "value": 5.0}
-    assert data == expected_data
-
-
-@pytest.mark.django_db
-def test_grouped_tracking_points_serializer(user_tracking_point: UserTrackingPoint):
-    input_data = ("test_label", [user_tracking_point] * 2)
-    data = GroupedTrackingPointSerializer(input_data).data
-    expected_data = {"label": "test_label", "values": [{"date": str(datetime.date.today()), "value": 5.0}] * 2}
     assert data == expected_data
 
 
