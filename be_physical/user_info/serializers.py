@@ -73,6 +73,12 @@ class TrackingPointsSerializer(serializers.ModelSerializer[UserInfo]):
         fields = ["tracking_points"]
 
 
+class TrackingPointRequestSerializer(serializers.ModelSerializer[UserTrackingPoint]):
+    class Meta:
+        model = UserTrackingPoint
+        fields = "__all__"
+
+
 class SimplifiedTrackingPointSerializer(serializers.ModelSerializer[UserTrackingPoint]):
     class Meta:
         model = UserTrackingPoint
