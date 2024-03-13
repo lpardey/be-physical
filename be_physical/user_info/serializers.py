@@ -79,30 +79,6 @@ class TrackingPointRequestSerializer(serializers.ModelSerializer[UserTrackingPoi
         fields = "__all__"
 
 
-class SimplifiedTrackingPointSerializer(serializers.ModelSerializer[UserTrackingPoint]):
-    class Meta:
-        model = UserTrackingPoint
-        fields = ["date", "value"]
-
-
-class GroupedTrackingPointSerializer(serializers.Serializer[GroupedTrackingPoint]):
-    label = serializers.SerializerMethodField(method_name="get_label")
-    values = serializers.SerializerMethodField(method_name="get_values")
-
-    def get_label(self, data: GroupedTrackingPoint) -> str:
-        return data[0]
-
-    def get_values(self, data: GroupedTrackingPoint) -> dict[str, Any]:
-        return SimplifiedTrackingPointSerializer(data[1], many=True).data
-
-
-class GroupedTrackingPointsSerializer(serializers.Serializer[Iterable[GroupedTrackingPoint]]):
-    tracking_points = serializers.SerializerMethodField(method_name="get_tracking_points")
-
-    def get_tracking_points(self, data: Iterable[GroupedTrackingPoint]) -> dict[str, Any]:
-        return GroupedTrackingPointSerializer(data, many=True).data
-
-
 def serialize_grouped_tracking_groups(data: Iterable[GroupedTrackingPoint]) -> dict[str, Any]:
     serialized_data = {
         "tracking_points": [
