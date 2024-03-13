@@ -1,4 +1,6 @@
 import datetime
+import math
+from dataclasses import dataclass
 
 import pytest
 from django.contrib.auth.models import User
@@ -181,3 +183,20 @@ def user_token(db: None, user: User) -> str:
 def api_client_authenticated(api_client: APIClient, user: User) -> APIClient:
     api_client.force_authenticate(user=user)
     return api_client
+
+
+@dataclass(frozen=True)
+class TrackingPointPayload:
+    user_info_exists: bool = True
+    label_exists: bool = True
+    date: datetime.date | str = datetime.date.today()
+    value: float | str = 10.0
+
+    def get_payload(self, basic_user_info: UserInfo, user_tracking_label: UserTrackingLabel):
+        payload = {
+            "user_info": basic_user_info.pk if self.user_info_exists else math.inf,
+            "label": user_tracking_label.pk if self.label_exists else math.inf,
+            "date": str(self.date),
+            "value": self.value,
+        }
+        return payload
