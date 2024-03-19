@@ -36,8 +36,8 @@ def test_create_tracking_point(
     assert response.status_code == expected_status
 
     if expected_status == status.HTTP_201_CREATED:
-        payload["id"] = basic_user_info.user.pk
-        expected_response = dict(data=payload)
+        expected_payload = {**payload, "id": basic_user_info.user.pk}
+        expected_response = {"data": expected_payload}
         assert response.json() == expected_response
 
 
