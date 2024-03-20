@@ -16,10 +16,10 @@ from ..urls import GET_TRACKING_POINTS_LABELS_VIEW_NAME, app_name
 def test_get_tracking_points_labels(
     mock_serialize_tracking_points_labels: Mock,
     mock_get_object_or_404: Mock,
-    user_info: UserInfo,
+    basic_user_info: UserInfo,
     api_client_authenticated: APIClient,
 ):
-    mock_get_object_or_404.return_value = user_info
+    mock_get_object_or_404.return_value = basic_user_info
     mock_serialize_tracking_points_labels.return_value = {
         "tracking_points_labels": [
             {"label_1": "description_1"},
