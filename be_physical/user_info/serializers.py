@@ -104,3 +104,9 @@ class AnnotationsSerializer(serializers.ModelSerializer[UserInfo]):
     class Meta:
         model = UserInfo
         fields = ["annotations"]
+
+
+class AnnotationRequestSerializer(serializers.ModelSerializer[UserAnnotation]):
+    class Meta:
+        model = UserAnnotation
+        fields = "__all__"
