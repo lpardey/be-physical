@@ -28,7 +28,7 @@ def test_create_tracking_point(
     user_tracking_label: UserTrackingLabel,
     api_client_authenticated: APIClient,
 ):
-    payload = test_payload.get_payload(basic_user_info, user_tracking_label)
+    payload = test_payload.generate_payload(basic_user_info, user_tracking_label)
 
     url = reverse(f"{app_name}:{CREATE_TRACKING_POINT_VIEW_NAME}")
     response: Response = api_client_authenticated.post(url, payload)
@@ -47,7 +47,7 @@ def test_create_tracking_point_no_auth(
     user_tracking_label: UserTrackingLabel,
     api_client: APIClient,
 ):
-    payload = TrackingPointPayload().get_payload(basic_user_info, user_tracking_label)
+    payload = TrackingPointPayload().generate_payload(basic_user_info, user_tracking_label)
     expected_response = {"detail": "Authentication credentials were not provided."}
 
     url = reverse(f"{app_name}:{CREATE_TRACKING_POINT_VIEW_NAME}")
