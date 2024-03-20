@@ -1,6 +1,4 @@
 import datetime
-import math
-from dataclasses import dataclass
 
 import pytest
 from django.contrib.auth.models import User
@@ -16,6 +14,7 @@ from ..models import (
     UserTrackingLabel,
     UserTrackingPoint,
 )
+from .payload import AnnotationPayload, TrackingPointPayload  # noqa: F401
 
 
 @pytest.fixture
@@ -142,33 +141,6 @@ def user_tracking_label(db: None) -> UserTrackingLabel:
 
 
 @pytest.fixture
-def user_tracking_point(
-    db: None,
-    user_tracking_label: UserTrackingLabel,
-    basic_user_info: UserInfo,
-) -> UserTrackingPoint:
-    return UserTrackingPoint.objects.create(
-        user_info=basic_user_info,
-        label=user_tracking_label,
-        date=datetime.date.today(),
-        value=5.0,
-    )
-
-
-@pytest.fixture
-def user_annotation(
-    db: None,
-    basic_user_info: UserInfo,
-) -> UserAnnotation:
-    return UserTrackingPoint.objects.create(
-        user_info=basic_user_info,
-        label=user_tracking_label,
-        date=datetime.date.today(),
-        value=5.0,
-    )
-
-
-@pytest.fixture
 def api_client() -> APIClient:
     return APIClient()
 
@@ -183,20 +155,3 @@ def user_token(db: None, user: User) -> str:
 def api_client_authenticated(api_client: APIClient, user: User) -> APIClient:
     api_client.force_authenticate(user=user)
     return api_client
-
-
-@dataclass(frozen=True)
-class TrackingPointPayload:
-    user_info_exists: bool = True
-    label_exists: bool = True
-    date: datetime.date | str = datetime.date.today()
-    value: float | str = 10.0
-
-    def get_payload(self, basic_user_info: UserInfo, user_tracking_label: UserTrackingLabel):
-        payload = {
-            "user_info": basic_user_info.pk if self.user_info_exists else math.inf,
-            "label": user_tracking_label.pk if self.label_exists else math.inf,
-            "date": str(self.date),
-            "value": self.value,
-        }
-        return payload
