@@ -1,6 +1,7 @@
 from typing import Any, Iterable
 
 from django.contrib.auth.models import User
+from django.db.models.query import QuerySet
 from rest_framework import serializers
 
 from .models import UserAnnotation, UserInfo, UserTrackingLabel, UserTrackingPoint
@@ -57,6 +58,11 @@ class TrackingLabelSerializer(serializers.ModelSerializer[UserTrackingLabel]):
     class Meta:
         model = UserTrackingLabel
         fields = "__all__"  # All fields in the model should be used
+
+
+def serialize_tracking_points_labels(data: QuerySet | list[UserTrackingLabel]) -> dict[str, Any]:
+    serialized_data = {"tracking_labels": [{label.label: label.description} for label in data]}
+    return serialized_data
 
 
 class UserTrackingPointSerializer(serializers.ModelSerializer[UserTrackingPoint]):
