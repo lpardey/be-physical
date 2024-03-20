@@ -59,7 +59,8 @@ def user_info_with_biometrics(user: User, db: None) -> UserInfo:
 @pytest.fixture
 def user_info_with_many_tracking_points(user: User, db: None) -> UserInfo:
     user_info = UserInfo.objects.create(user=user, height="1.86", birth_date=datetime.date.fromisoformat("1989-09-01"))
-    push_ups_tracking_label = UserTrackingLabel.objects.create(label="Push ups", description="Push ups label")
+    push_ups_tracking_label = UserTrackingLabel.objects.create(label="Push ups", description="Description")
+    running_tracking_label = UserTrackingLabel.objects.create(label="Running", description="Description")
     UserTrackingPoint.objects.create(
         user_info=user_info,
         label=push_ups_tracking_label,
@@ -77,6 +78,12 @@ def user_info_with_many_tracking_points(user: User, db: None) -> UserInfo:
         label=push_ups_tracking_label,
         date=datetime.date.today(),
         value=7,
+    )
+    UserTrackingPoint.objects.create(
+        user_info=user_info,
+        label=running_tracking_label,
+        date=datetime.date.today(),
+        value=100,
     )
     return user_info
 
