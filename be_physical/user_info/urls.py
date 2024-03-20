@@ -7,6 +7,7 @@ app_name = "user_info"
 GET_DATA_VIEW_NAME = "user_info_data"
 GET_BIOMETRICS_VIEW_NAME = "user_info_biometrics"
 GET_TRACKING_POINTS_VIEW_NAME = "user_info_tracking_points"
+GET_TRACKING_POINTS_LABELS_VIEW_NAME = "user_info_tracking_points_labels"
 GET_GROUPED_TRACKING_POINTS_VIEW_NAME = "user_info_grouped_tracking_points"
 GET_ANNOTATIONS_VIEW_NAME = "user_info_annotations"
 CREATE_VIEW_NAME = "user_info_create"
@@ -23,6 +24,7 @@ urlpatterns = [
         views.get_grouped_tracking_points,
         name=GET_GROUPED_TRACKING_POINTS_VIEW_NAME,
     ),
+    path("tracking_points/labels", views.get_tracking_points_labels, name=GET_TRACKING_POINTS_LABELS_VIEW_NAME),
     path("annotations/", views.get_annotations, name=GET_ANNOTATIONS_VIEW_NAME),
     path("annotations/create", views.create_annotation, name=CREATE_ANNOTATION_VIEW_NAME),
     path("create/", views.create, name=CREATE_VIEW_NAME),

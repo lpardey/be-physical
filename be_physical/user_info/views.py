@@ -18,6 +18,7 @@ from .serializers import (
     TrackingPointsSerializer,
     UserInfoSerializer,
     serialize_grouped_tracking_groups,
+    serialize_tracking_points_labels,
 )
 
 LABELS_QUERY_PARAM = "labels"
@@ -146,13 +147,25 @@ def create_annotation(request: Request) -> Response:
     return response
 
 
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_tracking_points_labels(request: Request) -> Response:
+    """
+    {
+        "tracking_points_labels":
+        [
+            {"label_1": description_1},
+            {"label_2": description_2},
+            {"label_3": description_3},
+        ]
+    }
+    """
+    user_info = get_object_or_404(UserInfo, user=request.user)
+    tracking_points_labels = user_info.tracking_points.select_related("label").all()
+    data_serialized = serialize_tracking_points_labels(tracking_points_labels)
+    response = Response(data_serialized)
+    return response
+
+
 def get_streak(request: HttpRequest) -> None:
-    return
-
-
-def create_label() -> None:
-    return
-
-
-def get_labels() -> None:
     return
