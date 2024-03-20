@@ -11,6 +11,7 @@ from rest_framework.response import Response
 
 from .models import UserInfo
 from .serializers import (
+    AnnotationRequestSerializer,
     AnnotationsSerializer,
     BiometricsSerializer,
     TrackingPointRequestSerializer,
@@ -116,20 +117,33 @@ def get_annotations(request: Request) -> Response:
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def create_tracking_point(request: Request) -> Response:
-    data = request.data
-    serializer = TrackingPointRequestSerializer(data=data)
+    request_data = request.data
+    serializer = TrackingPointRequestSerializer(data=request_data)
 
     if serializer.is_valid():
         serializer.save()
-        response = Response(serializer.data, status=status.HTTP_201_CREATED)
+        response_data = dict(data=serializer.data)
+        response = Response(response_data, status=status.HTTP_201_CREATED)
     else:
         response = Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     return response
 
 
-def create_annotation(request: HttpRequest) -> None:
-    return
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def create_annotation(request: Request) -> Response:
+    request_data = request.data
+    serializer = AnnotationRequestSerializer(data=request_data)
+
+    if serializer.is_valid():
+        serializer.save()
+        response_data = dict(data=serializer.data)
+        response = Response(response_data, status=status.HTTP_201_CREATED)
+    else:
+        response = Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    return response
 
 
 def get_streak(request: HttpRequest) -> None:

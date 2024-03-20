@@ -11,6 +11,7 @@ GET_GROUPED_TRACKING_POINTS_VIEW_NAME = "user_info_grouped_tracking_points"
 GET_ANNOTATIONS_VIEW_NAME = "user_info_annotations"
 CREATE_VIEW_NAME = "user_info_create"
 CREATE_TRACKING_POINT_VIEW_NAME = "user_info_create_tracking_point"
+CREATE_ANNOTATION_VIEW_NAME = "user_info_create_annotation"
 
 urlpatterns = [
     path("data/", views.get_data, name=GET_DATA_VIEW_NAME),
@@ -23,5 +24,6 @@ urlpatterns = [
         name=GET_GROUPED_TRACKING_POINTS_VIEW_NAME,
     ),
     path("annotations/", views.get_annotations, name=GET_ANNOTATIONS_VIEW_NAME),
+    path("annotations/create", views.create_annotation, name=CREATE_ANNOTATION_VIEW_NAME),
     path("create/", views.create, name=CREATE_VIEW_NAME),
 ]
