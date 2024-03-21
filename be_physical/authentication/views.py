@@ -10,7 +10,7 @@ from .models import BearerToken
 
 @api_view(["POST"])
 def login(request: Request) -> Response:
-    user = authenticate(username=request.POST["username"], password=request.POST["password"])
+    user = authenticate(username=request.data.get("username"), password=request.data.get("password"))
 
     if user is None:
         return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
