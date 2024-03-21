@@ -16,7 +16,6 @@ def login(request: Request) -> Response:
         return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
     token, created = BearerToken.objects.get_or_create(user=user)
-
     return Response({"token": token.key})
 
 
