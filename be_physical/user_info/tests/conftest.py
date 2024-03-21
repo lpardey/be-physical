@@ -19,7 +19,7 @@ from .payload import AnnotationPayload, TrackingPointPayload  # noqa: F401
 
 @pytest.fixture
 def user(db: None) -> User:
-    user = User.objects.create(username="John", email="john@test.com", password="john1234")
+    user = User.objects.create_user(username="John", email="john@test.com", password="john1234")
     return user
 
 
