@@ -1,6 +1,7 @@
 import itertools
 
-from django.contrib.auth.models import User
+# from django.contrib.auth.hashers import make_password
+# from django.contrib.auth.models import User
 from django.http import HttpRequest, QueryDict
 from django.shortcuts import get_object_or_404
 from rest_framework import status
@@ -14,6 +15,8 @@ from .serializers import (
     AnnotationRequestSerializer,
     AnnotationsSerializer,
     BiometricsSerializer,
+    CreateUserInfoRequestSerializer,
+    # TrackingLabelRequestSerializer,
     TrackingPointRequestSerializer,
     TrackingPointsSerializer,
     UserInfoSerializer,
@@ -22,17 +25,44 @@ from .serializers import (
 )
 
 LABELS_QUERY_PARAM = "labels"
+# CLUSTER_QUERY_PARAM = "cluster"
+
+
+# @api_view(["POST"])
+# def create(request: Request) -> Response:
+#     username = request.data.get("username")
+#     password = request.data.get("password")
+#     email = request.data.get("email")
+#     height = request.data.get("height")
+#     birth_date = request.data.get("birth_date")
+
+#     if not all([username, password, email, height, birth_date]):
+#         return Response({"Error": "All fields are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+#     hashed_password = make_password(password)
+#     user, created = User.objects.get_or_create(username=username, email=email, password=hashed_password)
+
+#     if created:
+#         UserInfo.objects.create(user=user, height=height, birth_date=birth_date)
+#         response = Response({"Success": "User created successfully"}, status=status.HTTP_201_CREATED)
+#     else:
+#         response = Response({"Error": f"Username '{username}' already exists."}, status=status.HTTP_400_BAD_REQUEST)
+
+#     return response
 
 
 @api_view(["POST"])
-def create(request: Request) -> Response:
-    username = request.POST["username"]
-    user, created = User.objects.get_or_create(username=username, defaults=request.POST)
+@permission_classes([IsAuthenticated])
+def create_user_info(request: Request) -> Response:
+    request_data = request.data
+    serializer = CreateUserInfoRequestSerializer(data=request_data)
 
-    if created:
-        response = Response({"Success": "User created successfully"}, status=status.HTTP_201_CREATED)
+    if serializer.is_valid():
+        serializer.save()
+        response_data = dict(data=serializer.data)
+        response = Response(response_data, status=status.HTTP_201_CREATED)
     else:
-        response = Response({"Error": f"Username '{username}' already exists."}, status=status.HTTP_400_BAD_REQUEST)
+        response = Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     return response
 
@@ -115,6 +145,36 @@ def get_annotations(request: Request) -> Response:
     return response
 
 
+# @api_view(["GET"])
+# @permission_classes([IsAuthenticated])
+# def get_grouped_annotations(request: Request) -> Response:
+#     """
+#     {
+#         "annotations": [
+#             {
+#                 "annotation_type": 0,
+#                 "values": [
+#                     {"text": "my annotation 1", "scope": 0, "status":1},
+#                     {"text": "my annotation 2", "scope": 0, "status":1},
+#                 ],
+#             },
+#             {
+#                 "annotation_type": 1,
+#                 "values": [
+#                     {"text": "trainer annotation 1", "scope": 1, "status":0},
+#                     {"text": "trainer annotation 2", "scope": 1, "status":1},
+#                 ],
+#             },
+#     ]
+#     }
+#     """
+#     user_info = get_object_or_404(UserInfo, user=request.user)
+#     query_params: QueryDict = request.query_params
+#     selected_cluster = query_params.getlist(CLUSTER_QUERY_PARAM, default=["annotation_type"])
+#     annotations = user_info.annotations.filter(selected_cluster[0]__in=selected_cluster).order_by(f"{selected_cluster[0]}", "date")
+#     return
+
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def create_tracking_point(request: Request) -> Response:
@@ -145,6 +205,22 @@ def create_annotation(request: Request) -> Response:
         response = Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     return response
+
+
+# @api_view(["POST"])
+# @permission_classes([IsAuthenticated])
+# def create_tracking_points_label(request: Request) -> Response:
+#     request_data = request.data
+#     serializer = TrackingLabelRequestSerializer(data=request_data)
+
+#     if serializer.is_valid():
+#         serializer.save()
+#         response_data = dict(data=serializer.data)
+#         response = Response(response_data, status=status.HTTP_201_CREATED)
+#     else:
+#         response = Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#     return response
 
 
 @api_view(["GET"])
