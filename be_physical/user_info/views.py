@@ -16,7 +16,7 @@ from .serializers import (
     AnnotationsSerializer,
     BiometricsSerializer,
     CreateUserInfoRequestSerializer,
-    # TrackingLabelRequestSerializer,
+    TrackingLabelRequestSerializer,
     TrackingPointRequestSerializer,
     TrackingPointsSerializer,
     UserInfoSerializer,
@@ -207,20 +207,19 @@ def create_annotation(request: Request) -> Response:
     return response
 
 
-# @api_view(["POST"])
-# @permission_classes([IsAuthenticated])
-# def create_tracking_points_label(request: Request) -> Response:
-#     request_data = request.data
-#     serializer = TrackingLabelRequestSerializer(data=request_data)
+@api_view(["POST"])
+def create_tracking_label(request: Request) -> Response:
+    request_data = request.data
+    serializer = TrackingLabelRequestSerializer(data=request_data)
 
-#     if serializer.is_valid():
-#         serializer.save()
-#         response_data = dict(data=serializer.data)
-#         response = Response(response_data, status=status.HTTP_201_CREATED)
-#     else:
-#         response = Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    if serializer.is_valid():
+        serializer.save()
+        response_data = dict(data=serializer.data)
+        response = Response(response_data, status=status.HTTP_201_CREATED)
+    else:
+        response = Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-#     return response
+    return response
 
 
 @api_view(["GET"])
