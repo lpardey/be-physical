@@ -1,29 +1,12 @@
 from typing import Any, Iterable
 
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from rest_framework import serializers
 
 from .models import UserAnnotation, UserInfo, UserTrackingLabel, UserTrackingPoint
 
 GroupedTrackingPoint = tuple[str, Iterable[UserTrackingPoint]]
-
-
-class UserSerializer(serializers.ModelSerializer[User]):
-    class Meta:
-        model = User
-        fields = [
-            "pk",
-            "first_name",
-            "last_name",
-            "username",
-            "email",
-            "date_joined",
-            "is_active",
-            "is_staff",
-            "is_superuser",
-            "last_login",
-        ]
 
 
 class UserInfoSerializer(serializers.ModelSerializer[UserInfo]):
@@ -34,6 +17,30 @@ class UserInfoSerializer(serializers.ModelSerializer[UserInfo]):
     class Meta:
         model = UserInfo
         fields = ["username", "email", "birth_date", "date_joined"]
+
+
+class CreateUserInfoRequestSerializer(serializers.ModelSerializer[UserInfo]):
+    class Meta:
+        model = UserInfo
+        fields = "__all__"
+
+
+# class UserSerializer(serializers.ModelSerializer[User]):
+#     user_info = CreateUserInfoRequestSerializer()
+
+#     class Meta:
+#         model = User
+#         fields = ["username", "password", "email", "user_info"]
+#         extra_kwargs = {"password": {"write_only": True}}
+
+#     def create(self, validated_data: dict[str, Any]) -> User:
+#         user_info_data = validated_data.pop("user_info")
+#         password = validated_data.pop("password")
+#         user, created = User.objects.get_or_create(**validated_data)
+#         user.set_password(password)
+#         user.save()
+#         UserInfo.objects.create(user=user, **user_info_data)
+#         return user
 
 
 class BiometricsSerializer(serializers.ModelSerializer[UserInfo]):
