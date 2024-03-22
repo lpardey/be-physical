@@ -58,6 +58,19 @@ class AnnotationPayload(Payload):
 
 
 @dataclass(frozen=True)
+class TrackingLabelPayload:
+    label: str = "Label"
+    description: str = "Description"
+
+    def generate_payload(self) -> dict[str, Any]:
+        payload = {
+            "label": self.label,
+            "description": self.description,
+        }
+        return payload
+
+
+@dataclass(frozen=True)
 class CreateUserInfoPayload:
     user_exists: bool = True
     height: float | str = 1.86
