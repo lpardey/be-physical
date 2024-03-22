@@ -13,6 +13,7 @@ from .conftest import AnnotationPayload, APIClient
     "test_payload, expected_status",
     [
         pytest.param(AnnotationPayload(), status.HTTP_201_CREATED, id="Valid data"),
+        pytest.param(AnnotationPayload(text=""), status.HTTP_400_BAD_REQUEST, id="Missing text field"),
         pytest.param(AnnotationPayload(user_info_exists=False), status.HTTP_400_BAD_REQUEST, id="Invalid user info"),
         pytest.param(
             AnnotationPayload(annotation_type="invalid_annotation_type"),

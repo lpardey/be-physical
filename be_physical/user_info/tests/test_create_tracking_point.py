@@ -13,6 +13,7 @@ from .conftest import APIClient, TrackingPointPayload
     "test_payload, expected_status",
     [
         pytest.param(TrackingPointPayload(), status.HTTP_201_CREATED, id="Valid data"),
+        pytest.param(TrackingPointPayload(value=""), status.HTTP_400_BAD_REQUEST, id="Missing value field"),
         pytest.param(
             TrackingPointPayload(user_info_exists=False), status.HTTP_400_BAD_REQUEST, id="Invalid user info"
         ),

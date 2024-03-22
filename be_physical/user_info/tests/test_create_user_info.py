@@ -15,8 +15,10 @@ from .payload import CreateUserInfoPayload
     [
         pytest.param(CreateUserInfoPayload(), status.HTTP_201_CREATED, id="Valid data"),
         pytest.param(CreateUserInfoPayload(user_exists=False), status.HTTP_400_BAD_REQUEST, id="Invalid user"),
+        pytest.param(CreateUserInfoPayload(height=""), status.HTTP_400_BAD_REQUEST, id="Missing height field"),
         pytest.param(CreateUserInfoPayload(height="invalid_height"), status.HTTP_400_BAD_REQUEST, id="Invalid height"),
         pytest.param(CreateUserInfoPayload(birth_date="invalid_date"), status.HTTP_400_BAD_REQUEST, id="Invalid date"),
+        pytest.param(CreateUserInfoPayload(birth_date=""), status.HTTP_400_BAD_REQUEST, id="Missing date field"),
     ],
 )
 def test_create_user_info(
