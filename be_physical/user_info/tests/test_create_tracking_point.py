@@ -36,8 +36,8 @@ def test_create_tracking_point(
     assert response.status_code == expected_status
 
     if expected_status == status.HTTP_201_CREATED:
-        expected_payload = {**payload, "id": basic_user_info.user.pk}
-        expected_response = {"data": expected_payload}
+        expected_payload = dict(id=basic_user_info.user.pk, **payload)
+        expected_response = dict(data=expected_payload)
         assert response.json() == expected_response
 
 
@@ -51,7 +51,7 @@ def test_create_tracking_point_no_auth(
     expected_response = {"detail": "Authentication credentials were not provided."}
 
     url = reverse(f"{app_name}:{CREATE_TRACKING_POINT_VIEW_NAME}")
-    response: Response = api_client.get(url, payload)
+    response: Response = api_client.post(url, payload)
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
     assert response.json() == expected_response

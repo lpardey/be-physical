@@ -17,10 +17,10 @@ from .conftest import AnnotationPayload, APIClient
         pytest.param(
             AnnotationPayload(annotation_type="invalid_annotation_type"),
             status.HTTP_400_BAD_REQUEST,
-            id="invalid_annotation_type",
+            id="Invalid annotation type",
         ),
-        pytest.param(AnnotationPayload(scope="invalid_scope"), status.HTTP_400_BAD_REQUEST, id="invalid_scope"),
-        pytest.param(AnnotationPayload(status="invalid_status"), status.HTTP_400_BAD_REQUEST, id="invalid_status"),
+        pytest.param(AnnotationPayload(scope="invalid_scope"), status.HTTP_400_BAD_REQUEST, id="Invalid scope"),
+        pytest.param(AnnotationPayload(status="invalid_status"), status.HTTP_400_BAD_REQUEST, id="Invalid status"),
     ],
 )
 def test_create_annotation(
@@ -37,8 +37,8 @@ def test_create_annotation(
     assert response.status_code == expected_status
 
     if expected_status == status.HTTP_201_CREATED:
-        expected_payload = {**payload, "id": basic_user_info.user.pk}
-        expected_response = {"data": expected_payload}
+        expected_payload = dict(id=basic_user_info.user.pk, **payload)
+        expected_response = dict(data=expected_payload)
         assert response.json() == expected_response
 
 
@@ -48,7 +48,7 @@ def test_create_annotation_no_auth(basic_user_info: UserInfo, api_client: APICli
     expected_response = {"detail": "Authentication credentials were not provided."}
 
     url = reverse(f"{app_name}:{CREATE_ANNOTATION_VIEW_NAME}")
-    response: Response = api_client.get(url, payload)
+    response: Response = api_client.post(url, payload)
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
     assert response.json() == expected_response
