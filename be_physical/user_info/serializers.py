@@ -61,10 +61,21 @@ class BiometricsSerializer(serializers.ModelSerializer[UserInfo]):
         return None
 
 
-class TrackingLabelSerializer(serializers.ModelSerializer[UserTrackingLabel]):
+class TrackingLabelRequestSerializer(serializers.ModelSerializer[UserTrackingLabel]):
     class Meta:
         model = UserTrackingLabel
         fields = "__all__"  # All fields in the model should be used
+
+    def validate_label(self, value: Any) -> str:
+        # Label already exists
+        if UserTrackingLabel.objects.filter(label=value).exists():
+            raise serializers.ValidationError("Label already exists.")
+
+        # Label type is not str
+        # if not isinstance(value, str):
+        #     raise serializers.ValidationError("Label must be a string.")
+
+        return value
 
 
 def serialize_tracking_points_labels(data: QuerySet | list[UserTrackingLabel]) -> dict[str, Any]:
