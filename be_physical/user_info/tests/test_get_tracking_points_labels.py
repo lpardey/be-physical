@@ -34,6 +34,8 @@ def test_get_tracking_points_labels(
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == expected_response
+    assert mock_get_object_or_404.call_count == 1
+    assert mock_serialize_tracking_points_labels.call_count == 1
 
 
 @pytest.mark.django_db
