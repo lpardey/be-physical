@@ -108,7 +108,7 @@ def get_tracking_points(request: Request) -> Response:
 def get_grouped_tracking_points(request: Request) -> Response:
     """
     {
-        "tracking_ponts": [
+        "tracking_points": [
             {
                 "label": "push ups",
                 "values": [
