@@ -1,5 +1,3 @@
-from unittest.mock import Mock, patch
-
 import pytest
 from django.urls import reverse
 from rest_framework import status
@@ -11,31 +9,21 @@ from ..urls import GET_TRACKING_POINTS_LABELS_VIEW_NAME, app_name
 
 
 @pytest.mark.django_db
-@patch("user_info.views.get_object_or_404")
-@patch("user_info.views.serialize_tracking_points_labels")
 def test_get_tracking_points_labels(
-    mock_serialize_tracking_points_labels: Mock,
-    mock_get_object_or_404: Mock,
-    basic_user_info: UserInfo,
+    user_info_with_many_tracking_points: UserInfo,
     api_client_authenticated: APIClient,
 ):
-    mock_get_object_or_404.return_value = basic_user_info
-    mock_serialize_tracking_points_labels.return_value = {
-        "tracking_points_labels": [
-            {"label_1": "description_1"},
-            {"label_2": "description_2"},
-            {"label_3": "description_3"},
+    expected_response = {
+        "tracking_labels": [
+            {"label": "Push ups", "description": "Description"},
+            {"label": "Running", "description": "Description"},
         ]
     }
-    expected_response = mock_serialize_tracking_points_labels.return_value
-
     url = reverse(f"{app_name}:{GET_TRACKING_POINTS_LABELS_VIEW_NAME}")
     response: Response = api_client_authenticated.get(url)
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == expected_response
-    assert mock_get_object_or_404.call_count == 1
-    assert mock_serialize_tracking_points_labels.call_count == 1
 
 
 @pytest.mark.django_db
@@ -50,7 +38,7 @@ def test_get_tracking_points_labels_no_auth(api_client: APIClient):
 
 
 @pytest.mark.django_db
-def test_get_tracking_points_labels_404(api_client_authenticated: APIClient):
+def test_get_tracking_points_labels_missing_user_info(api_client_authenticated: APIClient):
     expected_response = {"detail": "Not found."}
 
     url = reverse(f"{app_name}:{GET_TRACKING_POINTS_LABELS_VIEW_NAME}")

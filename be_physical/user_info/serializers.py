@@ -1,7 +1,5 @@
 from typing import Any, Iterable
 
-# from django.contrib.auth.models import User
-from django.db.models.query import QuerySet
 from rest_framework import serializers
 
 from .models import UserAnnotation, UserInfo, UserTrackingLabel, UserTrackingPoint
@@ -61,12 +59,12 @@ class BiometricsSerializer(serializers.ModelSerializer[UserInfo]):
         return None
 
 
-class TrackingLabelRequestSerializer(serializers.ModelSerializer[UserTrackingLabel]):
+class TrackingLabelSerializer(serializers.ModelSerializer[UserTrackingLabel]):
     class Meta:
         model = UserTrackingLabel
         fields = "__all__"  # All fields in the model should be used
 
-    def validate_label(self, value: Any) -> str:
+    def validate_label(self, value: str) -> str:
         # Label already exists
         if UserTrackingLabel.objects.filter(label=value).exists():
             raise serializers.ValidationError("Label already exists.")
@@ -78,8 +76,9 @@ class TrackingLabelRequestSerializer(serializers.ModelSerializer[UserTrackingLab
         return value
 
 
-def serialize_tracking_points_labels(data: QuerySet | list[UserTrackingLabel]) -> dict[str, Any]:
-    serialized_data = {"tracking_labels": [{label.label: label.description} for label in data]}
+def serialize_tracking_points_labels(data: Iterable[UserTrackingLabel]) -> dict[str, Any]:
+    values = (TrackingLabelSerializer(label).data for label in data)
+    serialized_data = {"tracking_labels": sorted(values, key=lambda x: x["label"])}
     return serialized_data
 
 

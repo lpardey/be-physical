@@ -16,7 +16,7 @@ from .serializers import (
     AnnotationsSerializer,
     BiometricsSerializer,
     CreateUserInfoRequestSerializer,
-    TrackingLabelRequestSerializer,
+    TrackingLabelSerializer,
     TrackingPointRequestSerializer,
     TrackingPointsSerializer,
     UserInfoSerializer,
@@ -210,7 +210,7 @@ def create_annotation(request: Request) -> Response:
 @api_view(["POST"])
 def create_tracking_label(request: Request) -> Response:
     request_data = request.data
-    serializer = TrackingLabelRequestSerializer(data=request_data)
+    serializer = TrackingLabelSerializer(data=request_data)
 
     if serializer.is_valid():
         serializer.save()
@@ -229,15 +229,25 @@ def get_tracking_points_labels(request: Request) -> Response:
     {
         "tracking_points_labels":
         [
-            {"label_1": description_1},
-            {"label_2": description_2},
-            {"label_3": description_3},
+            {
+                "label": "label_1":
+                "description": "description_1"
+            },
+            {
+                "label": "label_2":
+                "description": "description_2"
+            },
+            {
+                "label": "label_3":
+                "description": "description_3"
+            },
         ]
     }
     """
     user_info = get_object_or_404(UserInfo, user=request.user)
-    tracking_points_labels = user_info.tracking_points.select_related("label").all()
-    data_serialized = serialize_tracking_points_labels(tracking_points_labels)
+    tracking_points = user_info.tracking_points.select_related("label")
+    labels = {point.label for point in tracking_points}
+    data_serialized = serialize_tracking_points_labels(labels)
     response = Response(data_serialized)
     return response
 
