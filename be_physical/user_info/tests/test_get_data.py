@@ -33,7 +33,7 @@ def test_get_data_no_auth(api_client: APIClient):
 
 @pytest.mark.django_db
 def test_get_data_404(api_client_authenticated: APIClient):
-    expected_response = {"detail": "Not found."}
+    expected_response = {"detail": "No UserInfo matches the given query."}
 
     url = reverse(f"{app_name}:{GET_DATA_VIEW_NAME}")
     response: Response = api_client_authenticated.get(url)

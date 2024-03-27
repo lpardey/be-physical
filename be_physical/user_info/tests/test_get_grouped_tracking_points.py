@@ -73,7 +73,7 @@ def test_get_grouped_tracking_points_no_auth(api_client: APIClient):
 
 @pytest.mark.django_db
 def test_get_grouped_tracking_points_404(api_client_authenticated: APIClient):
-    expected_response = {"detail": "Not found."}
+    expected_response = {"detail": "No UserInfo matches the given query."}
 
     url = reverse(f"{app_name}:{GET_GROUPED_TRACKING_POINTS_VIEW_NAME}")
     response: Response = api_client_authenticated.get(url)
