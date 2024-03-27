@@ -1,16 +1,15 @@
 from django.contrib import admin
+from django.db import models
 
 from .models import UserAnnotation, UserInfo, UserTrackingLabel, UserTrackingPoint
 
-# Register your models here.
 
-
-class UserAnnotationInline(admin.TabularInline):  # type: ignore
+class UserAnnotationInline(admin.TabularInline[UserAnnotation, models.Model]):
     model = UserAnnotation
     extra = 0
 
 
-class UserTrackingPointInline(admin.TabularInline):  # type: ignore
+class UserTrackingPointInline(admin.TabularInline[UserTrackingPoint, models.Model]):
     model = UserTrackingPoint
     extra = 0
     ordering = ["label", "-date"]
@@ -18,25 +17,25 @@ class UserTrackingPointInline(admin.TabularInline):  # type: ignore
 
 @admin.register(UserInfo)
 class UserInfoAdmin(admin.ModelAdmin[UserInfo]):
-    search_fields = ["user_id__username"]
+    search_fields = ["user__username"]
     inlines = [UserAnnotationInline, UserTrackingPointInline]
-    readonly_fields = ["bmi", "category_name_by_bmi"]
-    list_display = ["user_id", "height", "birth_date", "bmi", "category_name_by_bmi"]
-    list_filter = ["user_id", "height", "birth_date"]
+    readonly_fields = ["bmi", "bmi_category"]
+    list_display = ["user", "height", "birth_date", "bmi", "bmi_category"]
+    list_filter = ["user", "height", "birth_date"]
 
 
 @admin.register(UserAnnotation)
 class UserAnnotationAdmin(admin.ModelAdmin[UserAnnotation]):
-    list_display = ["user_id", "text", "annotation_type", "scope", "status"]
-    list_filter = ["user_id", "annotation_type", "scope", "status"]
-    search_fields = ["user_id", "text"]
+    list_display = ["user_info", "text", "annotation_type", "scope", "status"]
+    list_filter = ["user_info", "annotation_type", "scope", "status"]
+    search_fields = ["user_info", "text"]
 
 
 @admin.register(UserTrackingPoint)
 class UserTrackingPointAdmin(admin.ModelAdmin[UserTrackingPoint]):
-    list_display = ["user_id", "label", "date", "value"]
-    list_filter = ["user_id", "label", "date"]
-    search_fields = ["user_id", "label"]
+    list_display = ["user_info", "label", "date", "value"]
+    list_filter = ["user_info", "label", "date"]
+    search_fields = ["user_info", "label"]
 
 
 @admin.register(UserTrackingLabel)

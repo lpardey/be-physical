@@ -11,13 +11,11 @@
 			"settings": {
 				"python.languageServer": "Pylance",
 				"python.testing.pytestEnabled": true,
-				"python.testing.pytestArgs": [
-					"tests"
-				],
+				"python.testing.cwd": "${workspaceFolder}/be_physical",
 				"[python]": {
 					"editor.formatOnSave": true,
 					"editor.codeActionsOnSave": {
-						"source.organizeImports": true
+						"source.organizeImports": "explicit"
 					},
 					"editor.defaultFormatter": "charliermarsh.ruff"
 				},
@@ -31,7 +29,8 @@
 				"mhutchie.git-graph",
 				"ms-toolsai.jupyter",
 				"charliermarsh.ruff",
-				"tamasfe.even-better-toml"
+				"tamasfe.even-better-toml",
+				"Postman.postman-for-vscode"
 			]
 		}
 	}
