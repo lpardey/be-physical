@@ -6,7 +6,7 @@ from django.http import HttpRequest, QueryDict
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 
@@ -52,7 +52,7 @@ LABELS_QUERY_PARAM = "labels"
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated | IsAdminUser])
 def create_user_info(request: Request) -> Response:
     request_data = request.data
     serializer = CreateUserInfoRequestSerializer(data=request_data)
@@ -176,7 +176,7 @@ def get_annotations(request: Request) -> Response:
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated | IsAdminUser])
 def create_tracking_point(request: Request) -> Response:
     request_data = request.data
     serializer = TrackingPointRequestSerializer(data=request_data)
@@ -192,7 +192,7 @@ def create_tracking_point(request: Request) -> Response:
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated | IsAdminUser])
 def create_annotation(request: Request) -> Response:
     request_data = request.data
     serializer = AnnotationRequestSerializer(data=request_data)
@@ -208,6 +208,7 @@ def create_annotation(request: Request) -> Response:
 
 
 @api_view(["POST"])
+@permission_classes([IsAuthenticated | IsAdminUser])
 def create_tracking_label(request: Request) -> Response:
     request_data = request.data
     serializer = TrackingLabelSerializer(data=request_data)
