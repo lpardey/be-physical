@@ -6,6 +6,7 @@ from django.db import models
 from django.utils.translation import gettext as _
 
 from . import bmi
+from .validators import validate_birth_date
 
 
 class UserInfo(models.Model):
@@ -18,7 +19,12 @@ class UserInfo(models.Model):
         help_text=_("Height in meters"),
         validators=[MinValueValidator(1.0), MaxValueValidator(2.5)],
     )
-    birth_date = models.DateField(blank=False, null=False, help_text=_("Birthdate as day/month/year"))
+    birth_date = models.DateField(
+        blank=False,
+        null=False,
+        help_text=_("Birthdate as day/month/year"),
+        validators=[validate_birth_date],
+    )
     annotations: models.QuerySet["UserAnnotation"]
     tracking_points: models.QuerySet["UserTrackingPoint"]
 
