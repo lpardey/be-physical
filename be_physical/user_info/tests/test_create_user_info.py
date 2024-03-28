@@ -20,7 +20,7 @@ from .conftest import APIClient
             "1989-09-01",
             "api_client_authenticated",
             status.HTTP_201_CREATED,
-            id="Valid request regular user",
+            id="Valid request as regular user",
         ),
         pytest.param(
             "admin_user",
@@ -28,7 +28,15 @@ from .conftest import APIClient
             "1989-09-01",
             "api_client_authenticated",
             status.HTTP_201_CREATED,
-            id="Valid request admin user",
+            id="Valid request as admin user",
+        ),
+        pytest.param(
+            "superuser",
+            "2.00",
+            "1989-09-01",
+            "api_client_authenticated",
+            status.HTTP_201_CREATED,
+            id="Valid request as superuser",
         ),
         pytest.param(
             "user",
@@ -52,7 +60,7 @@ from .conftest import APIClient
             "1989-09-01",
             "api_client_authenticated",
             status.HTTP_400_BAD_REQUEST,
-            id="Height value out of upper limit",
+            id="Height value out of upper bound",
         ),
         pytest.param(
             "user",
@@ -60,7 +68,7 @@ from .conftest import APIClient
             "1989-09-01",
             "api_client_authenticated",
             status.HTTP_400_BAD_REQUEST,
-            id="Height value out of lower limit",
+            id="Height value out of lower bound",
         ),
         pytest.param(
             "user",
@@ -84,7 +92,7 @@ from .conftest import APIClient
             datetime.date.today() + datetime.timedelta(days=1),
             "api_client_authenticated",
             status.HTTP_400_BAD_REQUEST,
-            id="Birth date out of upper limit",
+            id="Birth date out of upper bound",
         ),
         pytest.param(
             "user",
@@ -92,7 +100,7 @@ from .conftest import APIClient
             "1899-01-01",
             "api_client_authenticated",
             status.HTTP_400_BAD_REQUEST,
-            id="Birth date out of lower limit",
+            id="Birth date out of lower bound",
         ),
         pytest.param(
             "user",
