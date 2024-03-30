@@ -54,21 +54,26 @@ LABELS_QUERY_PARAM = "labels"
 @api_view(["POST"])
 @permission_classes([IsAuthenticated | IsAdminUser])
 def create_user_info(request: Request) -> Response:
-    request_data = request.data
+    request_data = request.data.dict()
+    request_data["user"] = request.user.id
     serializer = CreateUserInfoRequestSerializer(data=request_data)
 
     if serializer.is_valid():
         serializer.save()
         response_data = dict(data=serializer.data)
-        response = Response(response_data, status=status.HTTP_201_CREATED)
+        response_data["data"].pop("user")
+        response_status = status.HTTP_201_CREATED
     else:
-        response = Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        response_data = serializer.errors
+        response_status = status.HTTP_400_BAD_REQUEST
+
+    response = Response(response_data, response_status)
 
     return response
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated | IsAdminUser])
 def get_data(request: Request) -> Response:
     user_info = get_object_or_404(UserInfo, user=request.user)
     serializer = UserInfoSerializer(user_info)
