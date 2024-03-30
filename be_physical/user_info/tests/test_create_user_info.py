@@ -8,7 +8,7 @@ from rest_framework.response import Response
 
 from ..models import UserInfo
 from ..urls import CREATE_USER_INFO_VIEW_NAME, app_name
-from .conftest import APIClient
+from .conftest import UNAUTHORIZED_RESPONSE, APIClient
 
 
 @pytest.mark.django_db
@@ -57,6 +57,7 @@ def test_unauthorized_user(api_client: APIClient):
     response: Response = api_client.post(url)
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert response.json() == UNAUTHORIZED_RESPONSE
 
 
 @pytest.mark.django_db
@@ -67,3 +68,14 @@ def test_user_already_exists(api_client_authenticated: APIClient, user: User, ba
     response: Response = api_client_authenticated.post(url, data)
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("http_method", ["get", "put", "patch", "delete"])
+def test_create_user_info_incorrect_http_method(http_method: str, api_client_authenticated: APIClient):
+    url = reverse(f"{app_name}:{CREATE_USER_INFO_VIEW_NAME}")
+    request_method = getattr(api_client_authenticated, http_method)
+
+    response: Response = request_method(url)
+
+    assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
