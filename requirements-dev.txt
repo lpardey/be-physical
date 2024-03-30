@@ -8,10 +8,14 @@ asgiref==3.8.1
     # via
     #   -c requirements.txt
     #   django
+build==1.2.1
+    # via pip-tools
 certifi==2024.2.2
     # via requests
 charset-normalizer==3.3.2
     # via requests
+click==8.1.7
+    # via pip-tools
 django==5.0.3
     # via
     #   -c requirements.txt
@@ -42,9 +46,17 @@ mypy==1.7.1
 mypy-extensions==1.0.0
     # via mypy
 packaging==24.0
-    # via pytest
+    # via
+    #   build
+    #   pytest
+pip-tools==7.4.1
+    # via -r requirements-dev.in
 pluggy==1.4.0
     # via pytest
+pyproject-hooks==1.0.0
+    # via
+    #   build
+    #   pip-tools
 pytest==8.1.1
     # via
     #   -r requirements-dev.in
@@ -77,3 +89,9 @@ urllib3==2.2.1
     # via
     #   requests
     #   types-requests
+wheel==0.43.0
+    # via pip-tools
+
+# The following packages are considered to be unsafe in a requirements file:
+# pip
+# setuptools
