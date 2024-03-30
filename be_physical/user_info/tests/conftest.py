@@ -3,6 +3,7 @@ import datetime
 import pytest
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
+from rest_framework.exceptions import MethodNotAllowed, NotAuthenticated, PermissionDenied
 from rest_framework.test import APIClient
 
 from ..models import (
@@ -15,8 +16,11 @@ from ..models import (
     UserTrackingPoint,
 )
 
-UNAUTHORIZED_RESPONSE = {"detail": "Authentication credentials were not provided."}
-MISSING_USER_INFO_RESPONSE = {"detail": "No UserInfo matches the given query."}
+UNAUTHORIZED_RESPONSE = {"detail": NotAuthenticated.default_detail}
+PERMISSION_DENIED_RESPONSE = {"detail": PermissionDenied.default_detail}
+USER_INFO_NOT_FOUND_RESPONSE = {"detail": "No UserInfo matches the given query."}
+METHOD_POST_NOT_ALLOWED_RESPONSE = {"detail": MethodNotAllowed("POST").detail}
+METHOD_GET_NOT_ALLOWED_RESPONSE = {"detail": MethodNotAllowed("GET").detail}
 
 
 @pytest.fixture
@@ -58,7 +62,6 @@ def user_fixture(request: pytest.FixtureRequest) -> User:
         pytest.param("user_info_with_many_tracking_points", id="User with many tracking points"),
         pytest.param("user_info_with_many_annotations", id="User with many annotations"),
         pytest.param("complete_user_info", id="User with biometrics and annotations"),
-        pytest.param("missing_user_info", id="User without UserInfo data"),
     ]
 )
 def user_info_fixture(request: pytest.FixtureRequest) -> UserInfo:
