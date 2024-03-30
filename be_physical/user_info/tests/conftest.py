@@ -14,13 +14,41 @@ from ..models import (
     UserTrackingLabel,
     UserTrackingPoint,
 )
-from .payload import AnnotationPayload, TrackingPointPayload  # noqa: F401
+
+UNAUTHORIZED_RESPONSE = {"detail": "Authentication credentials were not provided."}
+MISSING_USER_INFO_RESPONSE = {"detail": "No UserInfo matches the given query."}
 
 
 @pytest.fixture
 def user(db: None) -> User:
     user = User.objects.create_user(username="John", email="john@test.com", password="john1234")
     return user
+
+
+@pytest.fixture
+def admin_user(user: User, db: None) -> User:
+    user.is_staff = True
+    user.save()
+    return user
+
+
+@pytest.fixture
+def superuser(user: User, db: None) -> User:
+    user.is_superuser = True
+    user.save()
+    return user
+
+
+@pytest.fixture(
+    params=[
+        pytest.param("user", id="Regular user"),
+        pytest.param("staff_user", id="Staff user"),
+        pytest.param("superuser", id="Superuser"),
+    ]
+)
+def user_fixture(request: pytest.FixtureRequest) -> User:
+    fixture_value: User = request.getfixturevalue(request.param)
+    return fixture_value
 
 
 @pytest.fixture(
@@ -30,9 +58,10 @@ def user(db: None) -> User:
         pytest.param("user_info_with_many_tracking_points", id="User with many tracking points"),
         pytest.param("user_info_with_many_annotations", id="User with many annotations"),
         pytest.param("complete_user_info", id="User with biometrics and annotations"),
+        pytest.param("missing_user_info", id="User without UserInfo data"),
     ]
 )
-def user_info(request: pytest.FixtureRequest) -> UserInfo:
+def user_info_fixture(request: pytest.FixtureRequest) -> UserInfo:
     fixture_value: UserInfo = request.getfixturevalue(request.param)
     return fixture_value
 
@@ -143,6 +172,11 @@ def complete_user_info(user: User, db: None) -> UserInfo:
 
 
 @pytest.fixture
+def missing_user_info(user: User, db: None) -> User:
+    return user
+
+
+@pytest.fixture
 def user_tracking_label(db: None) -> UserTrackingLabel:
     return UserTrackingLabel.objects.create(label="Push ups", description="Number of push ups")
 
@@ -162,3 +196,14 @@ def user_token(db: None, user: User) -> str:
 def api_client_authenticated(api_client: APIClient, user: User) -> APIClient:
     api_client.force_authenticate(user=user)
     return api_client
+
+
+@pytest.fixture(
+    params=[
+        pytest.param("api_client_authenticated", id="Basic client (authenticated)"),
+        pytest.param("api_client", id="Basic client (not authenticated)"),
+    ]
+)
+def client_fixture(request: pytest.FixtureRequest) -> UserInfo:
+    fixture_value: UserInfo = request.getfixturevalue(request.param)
+    return fixture_value
