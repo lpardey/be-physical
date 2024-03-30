@@ -6,6 +6,7 @@ from django.http import HttpRequest, QueryDict
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -68,7 +69,6 @@ def create_user_info(request: Request) -> Response:
         response_status = status.HTTP_400_BAD_REQUEST
 
     response = Response(response_data, response_status)
-
     return response
 
 
@@ -76,6 +76,11 @@ def create_user_info(request: Request) -> Response:
 @permission_classes([IsAuthenticated | IsAdminUser])
 def get_data(request: Request) -> Response:
     user_info = get_object_or_404(UserInfo, user=request.user)
+
+    # Check if the user making the request has permission to get data from other user
+    if (not request.user.is_staff or not request.user.is_superuser) and request.user != user_info.user:
+        raise PermissionDenied
+
     serializer = UserInfoSerializer(user_info)
     response = Response(serializer.data)
     return response
