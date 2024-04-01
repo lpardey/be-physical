@@ -55,7 +55,7 @@ LABELS_QUERY_PARAM = "labels"
 @api_view(["POST"])
 @permission_classes([IsAuthenticated | IsAdminUser])
 def create_user_info(request: Request) -> Response:
-    request_data = request.data.dict()
+    request_data = request.data.dict()  # type: ignore
     request_data["user"] = request.user.id
     serializer = CreateUserInfoRequestSerializer(data=request_data)
 
@@ -63,12 +63,10 @@ def create_user_info(request: Request) -> Response:
         serializer.save()
         response_data = dict(data=serializer.data)
         response_data["data"].pop("user")
-        response_status = status.HTTP_201_CREATED
+        response = Response(response_data, status.HTTP_201_CREATED)
     else:
-        response_data = serializer.errors
-        response_status = status.HTTP_400_BAD_REQUEST
+        response = Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
 
-    response = Response(response_data, response_status)
     return response
 
 
@@ -78,7 +76,7 @@ def get_data(request: Request) -> Response:
     user_info = get_object_or_404(UserInfo, user=request.user)
 
     # Check if the user making the request has permission to get data from other user
-    if (not request.user.is_staff or not request.user.is_superuser) and request.user != user_info.user:
+    if not (request.user.is_staff or request.user.is_superuser) and request.user != user_info.user:
         raise PermissionDenied
 
     serializer = UserInfoSerializer(user_info)
@@ -90,9 +88,9 @@ def get_data(request: Request) -> Response:
 @permission_classes([IsAuthenticated | IsAdminUser])
 def get_biometrics(request: Request) -> Response:
     user_info = get_object_or_404(UserInfo, user=request.user)
-    
+
     # Check if the user making the request has permission to get data from other user
-    if (not request.user.is_staff or not request.user.is_superuser) and request.user != user_info.user:
+    if not (request.user.is_staff or request.user.is_superuser) and request.user != user_info.user:
         raise PermissionDenied
 
     serializer = BiometricsSerializer(user_info)
@@ -101,7 +99,7 @@ def get_biometrics(request: Request) -> Response:
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated | IsAdminUser])
 def get_tracking_points(request: Request) -> Response:
     """
     labels: list, starting_date: datetime, end_date: datetime
@@ -113,6 +111,11 @@ def get_tracking_points(request: Request) -> Response:
     }
     """
     user_info = get_object_or_404(UserInfo, user=request.user)
+
+    # Check if the user making the request has permission to get data from other user
+    if not (request.user.is_staff or request.user.is_superuser) and request.user != user_info.user:
+        raise PermissionDenied
+
     serializer = TrackingPointsSerializer(user_info)
     response = Response(serializer.data)
     return response
