@@ -32,23 +32,6 @@ def test_get_data_success(user_fixture: User, user_info_fixture: UserInfo, api_c
 
 
 @pytest.mark.django_db
-@patch("user_info.views.get_object_or_404")
-def test_get_data_for_other_user(m_get_object_or_404: Mock, user: User, api_client_authenticated: APIClient):
-    assert not user.is_staff
-    assert not user.is_superuser
-
-    target_user = User.objects.create(username="target_user", email="target_user@example.com", password="12345")
-    target_user_info = UserInfo.objects.create(user=target_user, height="1.80", birth_date="1990-01-01")
-    m_get_object_or_404.return_value = target_user_info
-    url = reverse(f"{app_name}:{GET_DATA_VIEW_NAME}")
-
-    response: Response = api_client_authenticated.get(url)
-
-    assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == PERMISSION_DENIED_RESPONSE
-
-
-@pytest.mark.django_db
 @pytest.mark.parametrize(
     "client_fixture, expected_status, expected_response",
     [
@@ -75,6 +58,23 @@ def test_get_data_failed(client_fixture: APIClient, expected_status: status, exp
 
     assert response.status_code == expected_status
     assert response.json() == expected_response
+
+
+@pytest.mark.django_db
+@patch("user_info.views.get_object_or_404")
+def test_get_data_permission_denied(m_get_object_or_404: Mock, user: User, api_client_authenticated: APIClient):
+    assert not user.is_staff
+    assert not user.is_superuser
+
+    target_user = User.objects.create(username="target_user", email="target_user@example.com", password="12345")
+    target_user_info = UserInfo.objects.create(user=target_user, height="1.80", birth_date="1990-01-01")
+    m_get_object_or_404.return_value = target_user_info
+    url = reverse(f"{app_name}:{GET_DATA_VIEW_NAME}")
+
+    response: Response = api_client_authenticated.get(url)
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert response.json() == PERMISSION_DENIED_RESPONSE
 
 
 @pytest.mark.django_db
