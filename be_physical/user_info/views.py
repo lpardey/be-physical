@@ -61,7 +61,7 @@ def create_user_info(request: Request) -> Response:
 
     if serializer.is_valid():
         serializer.save()
-        response_data = dict(data=serializer.data)
+        response_data = {"data": serializer.data}
         response_data["data"].pop("user")
         response = Response(response_data, status.HTTP_201_CREATED)
     else:
