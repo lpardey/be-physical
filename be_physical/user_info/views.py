@@ -87,9 +87,14 @@ def get_data(request: Request) -> Response:
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated | IsAdminUser])
 def get_biometrics(request: Request) -> Response:
     user_info = get_object_or_404(UserInfo, user=request.user)
+    
+    # Check if the user making the request has permission to get data from other user
+    if (not request.user.is_staff or not request.user.is_superuser) and request.user != user_info.user:
+        raise PermissionDenied
+
     serializer = BiometricsSerializer(user_info)
     response = Response(serializer.data)
     return response
