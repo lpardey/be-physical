@@ -62,7 +62,7 @@ def test_get_biometrics_failed(client_fixture: APIClient, expected_status: statu
 
 @pytest.mark.django_db
 @patch("user_info.views.get_object_or_404")
-def test_get_biometrics_for_other_user(m_get_object_or_404: Mock, user: User, api_client_authenticated: APIClient):
+def test_get_biometrics_permission_denied(m_get_object_or_404: Mock, user: User, api_client_authenticated: APIClient):
     assert not user.is_staff
     assert not user.is_superuser
 
