@@ -51,7 +51,7 @@ def test_create_user_info_bad_request(height: str, birth_date: str, api_client_a
 
 
 @pytest.mark.django_db
-def test_unauthorized_user(api_client: APIClient):
+def test_create_user_info_unauthorized_user(api_client: APIClient):
     url = reverse(f"{app_name}:{CREATE_USER_INFO_VIEW_NAME}")
 
     response: Response = api_client.post(url)
@@ -61,7 +61,9 @@ def test_unauthorized_user(api_client: APIClient):
 
 
 @pytest.mark.django_db
-def test_user_already_exists(api_client_authenticated: APIClient, user: User, basic_user_info: UserInfo):
+def test_create_user_info_user_already_exists(
+    api_client_authenticated: APIClient, user: User, basic_user_info: UserInfo
+):
     data = {"height": "1.35", "birth_date": "1989-09-01"}
     url = reverse(f"{app_name}:{CREATE_USER_INFO_VIEW_NAME}")
 
