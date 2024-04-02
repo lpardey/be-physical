@@ -1,5 +1,6 @@
 from typing import Any, Iterable
 
+from django.utils.translation import gettext as _
 from rest_framework import serializers
 
 from .models import UserAnnotation, UserInfo, UserTrackingLabel, UserTrackingPoint
@@ -113,6 +114,22 @@ def serialize_grouped_tracking_groups(data: Iterable[GroupedTrackingPoint]) -> d
         ]
     }
     return serialized_data
+
+
+class GroupedTrackingPointsQueryParamsSerializer(serializers.Serializer[serializers.CharField]):
+    labels = serializers.CharField(
+        required=True,
+        help_text=_("Comma-separated list of labels"),
+    )
+
+    def validate_labels(self, value: str) -> list[str]:
+        labels = [label for label in value.split(",") if label]
+
+        if not labels:
+            detail = _("At least one label must be provided.")
+            raise serializers.ValidationError(detail)
+
+        return labels
 
 
 class UserAnnotationSerializer(serializers.ModelSerializer[UserAnnotation]):
