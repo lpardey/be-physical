@@ -3,7 +3,7 @@ import datetime
 import pytest
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
-from rest_framework.exceptions import MethodNotAllowed, NotAuthenticated, PermissionDenied
+from rest_framework.exceptions import MethodNotAllowed, NotAuthenticated
 from rest_framework.test import APIClient
 
 from ..models import (
@@ -17,7 +17,6 @@ from ..models import (
 )
 
 UNAUTHORIZED_RESPONSE = {"detail": NotAuthenticated.default_detail}
-PERMISSION_DENIED_RESPONSE = {"detail": PermissionDenied.default_detail}
 USER_INFO_NOT_FOUND_RESPONSE = {"detail": "No UserInfo matches the given query."}
 METHOD_POST_NOT_ALLOWED_RESPONSE = {"detail": MethodNotAllowed("POST").detail}
 METHOD_GET_NOT_ALLOWED_RESPONSE = {"detail": MethodNotAllowed("GET").detail}
@@ -212,3 +211,9 @@ def api_client_authenticated(api_client: APIClient, user: User) -> APIClient:
 def client_fixture(request: pytest.FixtureRequest) -> UserInfo:
     fixture_value: UserInfo = request.getfixturevalue(request.param)
     return fixture_value
+
+
+@pytest.fixture()
+def api_client_authenticated_with_user_info(api_client: APIClient, user: User, basic_user_info: User) -> APIClient:
+    api_client.force_authenticate(user=user)
+    return api_client
