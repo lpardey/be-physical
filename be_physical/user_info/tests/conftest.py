@@ -175,8 +175,10 @@ def complete_user_info(user: User, db: None) -> UserInfo:
 
 
 @pytest.fixture
-def missing_user_info(user: User, db: None) -> User:
-    return user
+def other_user_info(db: None) -> UserInfo:
+    other_user = User.objects.create(username="other_user", email="other_user@example.com", password="12345")
+    other_user_info = UserInfo.objects.create(user=other_user, height="1.80", birth_date="1990-01-01")
+    return other_user_info
 
 
 @pytest.fixture

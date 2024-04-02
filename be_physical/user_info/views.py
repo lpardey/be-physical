@@ -6,8 +6,7 @@ from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.exceptions import PermissionDenied
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 
@@ -54,7 +53,7 @@ LABELS_QUERY_PARAM = "labels"
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated | IsAdminUser])
+@permission_classes([IsAuthenticated])
 def create_user_info(request: Request) -> Response:
     request_data = request.data.dict()  # type: ignore
     request_data["user"] = request.user.id
@@ -72,35 +71,25 @@ def create_user_info(request: Request) -> Response:
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated | IsAdminUser])
+@permission_classes([IsAuthenticated])
 def get_data(request: Request) -> Response:
     user_info = get_object_or_404(UserInfo, user=request.user)
-
-    # Check if the user making the request has permission to get data from other user
-    if not (request.user.is_staff or request.user.is_superuser) and request.user != user_info.user:
-        raise PermissionDenied
-
     serializer = UserInfoSerializer(user_info)
     response = Response(serializer.data)
     return response
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated | IsAdminUser])
+@permission_classes([IsAuthenticated])
 def get_biometrics(request: Request) -> Response:
     user_info = get_object_or_404(UserInfo, user=request.user)
-
-    # Check if the user making the request has permission to get data from other user
-    if not (request.user.is_staff or request.user.is_superuser) and request.user != user_info.user:
-        raise PermissionDenied
-
     serializer = BiometricsSerializer(user_info)
     response = Response(serializer.data)
     return response
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated | IsAdminUser])
+@permission_classes([IsAuthenticated])
 def get_tracking_points(request: Request) -> Response:
     """
     labels: list, starting_date: datetime, end_date: datetime
@@ -112,18 +101,13 @@ def get_tracking_points(request: Request) -> Response:
     }
     """
     user_info = get_object_or_404(UserInfo, user=request.user)
-
-    # Check if the user making the request has permission to get data from other user
-    if not (request.user.is_staff or request.user.is_superuser) and request.user != user_info.user:
-        raise PermissionDenied
-
     serializer = TrackingPointsSerializer(user_info)
     response = Response(serializer.data)
     return response
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated | IsAdminUser])
+@permission_classes([IsAuthenticated])
 def get_grouped_tracking_points(request: Request) -> Response:
     """
     {
@@ -147,10 +131,6 @@ def get_grouped_tracking_points(request: Request) -> Response:
     """
     user_info = get_object_or_404(UserInfo, user=request.user)
     query_params_serializer = GroupedTrackingPointsQueryParamsSerializer(data=request.query_params)
-
-    # Check if the user making the request has permission to get data from other user
-    if not (request.user.is_staff or request.user.is_superuser) and request.user != user_info.user:
-        raise PermissionDenied
 
     if query_params_serializer.is_valid():
         selected_labels = query_params_serializer.validated_data["labels"]
@@ -204,7 +184,7 @@ def get_annotations(request: Request) -> Response:
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated | IsAdminUser])
+@permission_classes([IsAuthenticated])
 def create_tracking_point(request: Request) -> Response:
     request_data = request.data
     serializer = TrackingPointRequestSerializer(data=request_data)
@@ -220,7 +200,7 @@ def create_tracking_point(request: Request) -> Response:
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated | IsAdminUser])
+@permission_classes([IsAuthenticated])
 def create_annotation(request: Request) -> Response:
     request_data = request.data
     serializer = AnnotationRequestSerializer(data=request_data)
@@ -236,7 +216,7 @@ def create_annotation(request: Request) -> Response:
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated | IsAdminUser])
+@permission_classes([IsAuthenticated])
 def create_tracking_label(request: Request) -> Response:
     request_data = request.data
     serializer = TrackingLabelSerializer(data=request_data)

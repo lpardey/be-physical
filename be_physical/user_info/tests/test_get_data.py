@@ -19,9 +19,8 @@ from .conftest import (
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize("user_fixture", ["user", "admin_user", "superuser"], indirect=True)
-def test_get_data_success(user_fixture: User, user_info_fixture: UserInfo, api_client: APIClient):
-    api_client.force_authenticate(user_fixture)
+def test_get_data_success(user: User, user_info_fixture: UserInfo, api_client: APIClient):
+    api_client.force_authenticate(user)
     expected_response = UserInfoSerializer(user_info_fixture).data
     url = reverse(f"{app_name}:{GET_DATA_VIEW_NAME}")
 
@@ -50,7 +49,6 @@ def test_get_data_success(user_fixture: User, user_info_fixture: UserInfo, api_c
     ],
     indirect=["client_fixture"],
 )
-@pytest.mark.django_db
 def test_get_data_failed(client_fixture: APIClient, expected_status: status, expected_response: dict[str, Any]):
     url = reverse(f"{app_name}:{GET_DATA_VIEW_NAME}")
 
