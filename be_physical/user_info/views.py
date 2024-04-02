@@ -2,7 +2,7 @@ import itertools
 
 # from django.contrib.auth.hashers import make_password
 # from django.contrib.auth.models import User
-from django.http import HttpRequest, QueryDict
+from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -17,6 +17,7 @@ from .serializers import (
     AnnotationsSerializer,
     BiometricsSerializer,
     CreateUserInfoRequestSerializer,
+    GroupedTrackingPointsQueryParamsSerializer,
     TrackingLabelSerializer,
     TrackingPointRequestSerializer,
     TrackingPointsSerializer,
@@ -122,7 +123,7 @@ def get_tracking_points(request: Request) -> Response:
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated | IsAdminUser])
 def get_grouped_tracking_points(request: Request) -> Response:
     """
     {
@@ -145,12 +146,21 @@ def get_grouped_tracking_points(request: Request) -> Response:
     }
     """
     user_info = get_object_or_404(UserInfo, user=request.user)
-    query_params: QueryDict = request.query_params
-    selected_labels = query_params.getlist(LABELS_QUERY_PARAM)
-    points = user_info.tracking_points.filter(label__label__in=selected_labels).order_by("label__label", "date")
-    points_groups = itertools.groupby(points, key=lambda p: p.label.label)
-    data_serialized = serialize_grouped_tracking_groups(points_groups)
-    response = Response(data_serialized)
+    query_params_serializer = GroupedTrackingPointsQueryParamsSerializer(data=request.query_params)
+
+    # Check if the user making the request has permission to get data from other user
+    if not (request.user.is_staff or request.user.is_superuser) and request.user != user_info.user:
+        raise PermissionDenied
+
+    if query_params_serializer.is_valid():
+        selected_labels = query_params_serializer.validated_data["labels"]
+        points = user_info.tracking_points.filter(label__label__in=selected_labels).order_by("label__label", "date")
+        points_groups = itertools.groupby(points, key=lambda p: p.label.label)
+        data_serialized = serialize_grouped_tracking_groups(points_groups)
+        response = Response(data_serialized)
+    else:
+        response = Response(query_params_serializer.errors, status.HTTP_400_BAD_REQUEST)
+
     return response
 
 
