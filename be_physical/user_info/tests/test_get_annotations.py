@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 from django.urls import reverse
 from rest_framework import status
@@ -7,12 +9,18 @@ from rest_framework.test import APIClient
 from ..models import UserInfo
 from ..serializers import AnnotationsSerializer
 from ..urls import GET_ANNOTATIONS_VIEW_NAME, app_name
+from .conftest import (
+    UNAUTHORIZED_RESPONSE,
+    USER_INFO_NOT_FOUND_RESPONSE,
+)
+from .generic_test_http_methods import GenericTestIncorrectHTTPMethods
 
 
 @pytest.mark.django_db
-def test_get_annotations(user_info: UserInfo, api_client_authenticated: APIClient):
-    expected_response = AnnotationsSerializer(user_info).data
+def test_get_annotations_success(api_client_authenticated: APIClient, user_info_fixture: UserInfo):
+    expected_response = AnnotationsSerializer(user_info_fixture).data
     url = reverse(f"{app_name}:{GET_ANNOTATIONS_VIEW_NAME}")
+
     response: Response = api_client_authenticated.get(url)
 
     assert response.status_code == status.HTTP_200_OK
@@ -20,22 +28,34 @@ def test_get_annotations(user_info: UserInfo, api_client_authenticated: APIClien
 
 
 @pytest.mark.django_db
-def test_get_annotations_no_auth(api_client: APIClient):
-    expected_response = {"detail": "Authentication credentials were not provided."}
-
+@pytest.mark.parametrize(
+    "client_fixture, expected_status, expected_response",
+    [
+        pytest.param(
+            "api_client",
+            status.HTTP_401_UNAUTHORIZED,
+            UNAUTHORIZED_RESPONSE,
+            id="Unauthorized",
+        ),
+        pytest.param(
+            "api_client_authenticated",
+            status.HTTP_404_NOT_FOUND,
+            USER_INFO_NOT_FOUND_RESPONSE,
+            id="UserInfo not found",
+        ),
+    ],
+    indirect=["client_fixture"],
+)
+def test_get_annotations_failed(client_fixture: APIClient, expected_status: status, expected_response: dict[str, Any]):
     url = reverse(f"{app_name}:{GET_ANNOTATIONS_VIEW_NAME}")
-    response: Response = api_client.get(url)
 
-    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    response: Response = client_fixture.get(url)
+
+    assert response.status_code == expected_status
     assert response.json() == expected_response
 
 
 @pytest.mark.django_db
-def test_get_annotations_404(api_client_authenticated: APIClient):
-    expected_response = {"detail": "No UserInfo matches the given query."}
-
-    url = reverse(f"{app_name}:{GET_ANNOTATIONS_VIEW_NAME}")
-    response: Response = api_client_authenticated.get(url)
-
-    assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json() == expected_response
+class TestGetBiometricsIncorrectHTTPMethods(GenericTestIncorrectHTTPMethods):
+    VIEW_NAME = GET_ANNOTATIONS_VIEW_NAME
+    ALLOWED_METHODS = ["get"]

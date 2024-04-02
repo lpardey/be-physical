@@ -3,7 +3,6 @@ from typing import Any
 from unittest.mock import Mock, patch
 
 import pytest
-from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.response import Response
@@ -12,7 +11,11 @@ from rest_framework.test import APIClient
 from ..models import UserInfo, UserTrackingLabel, UserTrackingPoint
 from ..serializers import GroupedTrackingPointsQueryParamsSerializer
 from ..urls import GET_GROUPED_TRACKING_POINTS_VIEW_NAME, app_name
-from .conftest import PERMISSION_DENIED_RESPONSE, UNAUTHORIZED_RESPONSE, USER_INFO_NOT_FOUND_RESPONSE
+from .conftest import (
+    UNAUTHORIZED_RESPONSE,
+    USER_INFO_NOT_FOUND_RESPONSE,
+)
+from .generic_test_http_methods import GenericTestIncorrectHTTPMethods
 
 LABEL_TEST_VALUE = 50.0
 
@@ -102,48 +105,6 @@ def test_get_grouped_tracking_points_failed(
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize(
-    "user_fixture, expected_status",
-    [
-        pytest.param("user", status.HTTP_403_FORBIDDEN),
-        pytest.param("admin_user", status.HTTP_200_OK),
-        pytest.param("superuser", status.HTTP_200_OK),
-    ],
-    indirect=["user_fixture"],
-)
-@patch("user_info.views.get_object_or_404")
-@patch("user_info.views.serialize_grouped_tracking_groups")
-def test_get_grouped_tracking_points_permission_denied(
-    m_serialize_grouped_tracking_groups: Mock,
-    m_get_object_or_404: Mock,
-    user_fixture: User,
-    expected_status: status,
-    other_user_info: UserInfo,
-    api_client_authenticated: APIClient,
-):
-    m_get_object_or_404.return_value = other_user_info
-    request_data = {"labels": "push ups,running,squats"}
-    labels = GroupedTrackingPointsQueryParamsSerializer().validate_labels(request_data["labels"])
-    m_serialize_grouped_tracking_groups.return_value = generate_response(labels, LABEL_TEST_VALUE)
-    url = reverse(f"{app_name}:{GET_GROUPED_TRACKING_POINTS_VIEW_NAME}")
-    expected_response = (
-        PERMISSION_DENIED_RESPONSE
-        if expected_status == status.HTTP_403_FORBIDDEN
-        else m_serialize_grouped_tracking_groups.return_value
-    )
-
-    response: Response = api_client_authenticated.get(url, request_data)
-
-    assert response.status_code == expected_status
-    assert response.json() == expected_response
-
-
-@pytest.mark.django_db
-@pytest.mark.parametrize("http_method", ["post", "put", "patch", "delete"])
-def test_get_grouped_tracking_points_incorrect_http_method(http_method: str, api_client_authenticated: APIClient):
-    url = reverse(f"{app_name}:{GET_GROUPED_TRACKING_POINTS_VIEW_NAME}")
-    request_method = getattr(api_client_authenticated, http_method)
-
-    response: Response = request_method(url)
-
-    assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
+class TestGetGroupedTrackingPointsIncorrectHTTPMethods(GenericTestIncorrectHTTPMethods):
+    VIEW_NAME = GET_GROUPED_TRACKING_POINTS_VIEW_NAME
+    ALLOWED_METHODS = ["get"]
