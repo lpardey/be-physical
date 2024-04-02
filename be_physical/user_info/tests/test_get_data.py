@@ -57,5 +57,5 @@ def test_get_data_failed(client_fixture: APIClient, expected_status: status, exp
 
 @pytest.mark.django_db
 class TestGetDataIncorrectHTTPMethods(GenericTestIncorrectHTTPMethods):
-    VIEW_URL = f"{app_name}:{GET_DATA_VIEW_NAME}"
+    VIEW_NAME = GET_DATA_VIEW_NAME
     ALLOWED_METHODS = ["get"]
