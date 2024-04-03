@@ -1,14 +1,5 @@
-# python-project
+# Be-Physical API
 
-This project is a template to kick-start a new python based project with:
+Web API that organizes health and fitness data to empower users in their wellness journey 🏋️💪🏃. The technologies used (Django, Django Rest Framework, PostgreSQL and Pytest) and the adherence to the TDD principle ensure good performance, scalability, and reliability 🔥🚀.
 
-* automated image building, including requirements
-* devcontainer + vscode configuration
-* basic .gitignore
-* tests directory scaffolding
-* configuration for flake8, black, mypy, isort, etc
-* setup.py script for automatic installation
-
-# coming soon:
-
-* github actions configuration for CI/CD pipeline
+WIP 🧑‍💻🛠️🔄
