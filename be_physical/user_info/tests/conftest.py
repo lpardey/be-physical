@@ -3,7 +3,7 @@ import datetime
 import pytest
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
-from rest_framework.exceptions import MethodNotAllowed, NotAuthenticated
+from rest_framework.exceptions import NotAuthenticated
 from rest_framework.test import APIClient
 
 from ..models import (
@@ -18,40 +18,12 @@ from ..models import (
 
 UNAUTHORIZED_RESPONSE = {"detail": NotAuthenticated.default_detail}
 USER_INFO_NOT_FOUND_RESPONSE = {"detail": "No UserInfo matches the given query."}
-METHOD_POST_NOT_ALLOWED_RESPONSE = {"detail": MethodNotAllowed("POST").detail}
-METHOD_GET_NOT_ALLOWED_RESPONSE = {"detail": MethodNotAllowed("GET").detail}
 
 
 @pytest.fixture
 def user(db: None) -> User:
     user = User.objects.create_user(username="John", email="john@test.com", password="john1234")
     return user
-
-
-@pytest.fixture
-def admin_user(user: User, db: None) -> User:
-    user.is_staff = True
-    user.save()
-    return user
-
-
-@pytest.fixture
-def superuser(user: User, db: None) -> User:
-    user.is_superuser = True
-    user.save()
-    return user
-
-
-@pytest.fixture(
-    params=[
-        pytest.param("user", id="Regular user"),
-        pytest.param("staff_user", id="Staff user"),
-        pytest.param("superuser", id="Superuser"),
-    ]
-)
-def user_fixture(request: pytest.FixtureRequest) -> User:
-    fixture_value: User = request.getfixturevalue(request.param)
-    return fixture_value
 
 
 @pytest.fixture(
@@ -174,13 +146,6 @@ def complete_user_info(user: User, db: None) -> UserInfo:
 
 
 @pytest.fixture
-def other_user_info(db: None) -> UserInfo:
-    other_user = User.objects.create(username="other_user", email="other_user@example.com", password="12345")
-    other_user_info = UserInfo.objects.create(user=other_user, height="1.80", birth_date="1990-01-01")
-    return other_user_info
-
-
-@pytest.fixture
 def user_tracking_label(db: None) -> UserTrackingLabel:
     return UserTrackingLabel.objects.create(label="Push ups", description="Number of push ups")
 
@@ -202,6 +167,12 @@ def api_client_authenticated(api_client: APIClient, user: User) -> APIClient:
     return api_client
 
 
+@pytest.fixture()
+def api_client_authenticated_with_user_info(api_client: APIClient, user: User, basic_user_info: User) -> APIClient:
+    api_client.force_authenticate(user=user)
+    return api_client
+
+
 @pytest.fixture(
     params=[
         pytest.param("api_client_authenticated", id="Basic client (authenticated)"),
@@ -211,9 +182,3 @@ def api_client_authenticated(api_client: APIClient, user: User) -> APIClient:
 def client_fixture(request: pytest.FixtureRequest) -> UserInfo:
     fixture_value: UserInfo = request.getfixturevalue(request.param)
     return fixture_value
-
-
-@pytest.fixture()
-def api_client_authenticated_with_user_info(api_client: APIClient, user: User, basic_user_info: User) -> APIClient:
-    api_client.force_authenticate(user=user)
-    return api_client

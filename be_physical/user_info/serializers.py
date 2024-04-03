@@ -24,24 +24,6 @@ class CreateUserInfoRequestSerializer(serializers.ModelSerializer[UserInfo]):
         fields = "__all__"
 
 
-# class UserSerializer(serializers.ModelSerializer[User]):
-#     user_info = CreateUserInfoRequestSerializer()
-
-#     class Meta:
-#         model = User
-#         fields = ["username", "password", "email", "user_info"]
-#         extra_kwargs = {"password": {"write_only": True}}
-
-#     def create(self, validated_data: dict[str, Any]) -> User:
-#         user_info_data = validated_data.pop("user_info")
-#         password = validated_data.pop("password")
-#         user, created = User.objects.get_or_create(**validated_data)
-#         user.set_password(password)
-#         user.save()
-#         UserInfo.objects.create(user=user, **user_info_data)
-#         return user
-
-
 class BiometricsSerializer(serializers.ModelSerializer[UserInfo]):
     desired_weight = serializers.SerializerMethodField(method_name="get_desired_weight")
 
@@ -69,10 +51,6 @@ class TrackingLabelSerializer(serializers.ModelSerializer[UserTrackingLabel]):
         # Label already exists
         if UserTrackingLabel.objects.filter(label=value).exists():
             raise serializers.ValidationError("Label already exists.")
-
-        # Label type is not str
-        # if not isinstance(value, str):
-        #     raise serializers.ValidationError("Label must be a string.")
 
         return value
 
