@@ -26,7 +26,7 @@ BMI_CATEGORY_BOUNDS = {
 
 
 def get_category_name(bmi: float) -> str:
-    result = "Unknown"
+    result = "unknown"
 
     for category, bound in BMI_CATEGORY_BOUNDS.items():
         if bmi < bound:
@@ -37,4 +37,4 @@ def get_category_name(bmi: float) -> str:
 
 
 def get_bmi(height: float, weight: float) -> float:
-    return weight / (height**2)
+    return round(weight / (height**2), 2)

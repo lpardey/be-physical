@@ -56,11 +56,21 @@ no_implicit_reexport = false
 
 strict_equality = true
 
-exclude = ['^setup\.py$', 'be_physical/.*/migrations/.*\.py', '^build/.*']
+exclude = [
+    'be_physical/.*/migrations/.*\.py',
+    '^build/.*',
+    'be_physical/.*/tests/.*',
+]
 
-plugins = ["mypy_django_plugin.main"]
+plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
 
 mypy_path = "./be_physical"
 
 [tool.django-stubs]
 django_settings_module = "be_physical.settings"
+
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "be_physical.settings"
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
+pythonpath = "be_physical"
