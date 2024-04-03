@@ -8,89 +8,74 @@ from rest_framework.test import APIClient
 
 from ..models import UserInfo
 from ..urls import GET_TRACKING_POINTS_LABELS_VIEW_NAME, app_name
+from .conftest import UNAUTHORIZED_RESPONSE, USER_INFO_NOT_FOUND_RESPONSE
+from .generic_test_http_methods import GenericTestIncorrectHTTPMethods
 
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    "user_info, client_fixture, expected_status, expected_response",
+    "user_info_fixture, expected_response",
     [
         pytest.param(
             "user_info_with_many_tracking_points",
-            "api_client_authenticated",
-            status.HTTP_200_OK,
             {
                 "tracking_labels": [
                     {"label": "Push ups", "description": "Description"},
                     {"label": "Running", "description": "Description"},
                 ]
             },
-            id="Valid data",
+            id="Tracking points labels available",
         ),
-        pytest.param(
-            "user_info_with_many_tracking_points",
-            "api_client",
-            status.HTTP_401_UNAUTHORIZED,
-            {"detail": "Authentication credentials were not provided."},
-            id="No auth",
-        ),
-        pytest.param(
-            "missing_user_info",
-            "api_client_authenticated",
-            status.HTTP_404_NOT_FOUND,
-            {"detail": "No UserInfo matches the given query."},
-            id="Missing UserInfo",
-        ),
+        pytest.param("basic_user_info", {"tracking_labels": []}, id="No Tracking points labels"),
     ],
-    indirect=["user_info", "client_fixture"],
+    indirect=["user_info_fixture"],
 )
-def test_get_tracking_points_labels(
-    user_info: UserInfo | None,
-    client_fixture: APIClient,
-    expected_status: status,
+def test_get_tracking_points_labels_success(
+    user_info_fixture: UserInfo,
     expected_response: dict[str:Any],
+    api_client_authenticated: APIClient,
 ):
     url = reverse(f"{app_name}:{GET_TRACKING_POINTS_LABELS_VIEW_NAME}")
+
+    response: Response = api_client_authenticated.get(url)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == expected_response
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "client_fixture, expected_status, expected_response",
+    [
+        pytest.param(
+            "api_client",
+            status.HTTP_401_UNAUTHORIZED,
+            UNAUTHORIZED_RESPONSE,
+            id="Unauthorized",
+        ),
+        pytest.param(
+            "api_client_authenticated",
+            status.HTTP_404_NOT_FOUND,
+            USER_INFO_NOT_FOUND_RESPONSE,
+            id="UserInfo not found",
+        ),
+    ],
+    indirect=["client_fixture"],
+)
+def test_get_tracking_points_labels_failed(
+    client_fixture: APIClient,
+    expected_status: status,
+    expected_response: dict[str, Any],
+):
+    url = reverse(f"{app_name}:{GET_TRACKING_POINTS_LABELS_VIEW_NAME}")
+
     response: Response = client_fixture.get(url)
 
     assert response.status_code == expected_status
     assert response.json() == expected_response
 
 
-# @pytest.mark.django_db
-# def test_get_tracking_points_labels(
-#     user_info_with_many_tracking_points: UserInfo,
-#     api_client_authenticated: APIClient,
-# ):
-#     expected_response = {
-#         "tracking_labels": [
-#             {"label": "Push ups", "description": "Description"},
-#             {"label": "Running", "description": "Description"},
-#         ]
-#     }
-#     url = reverse(f"{app_name}:{GET_TRACKING_POINTS_LABELS_VIEW_NAME}")
-#     response: Response = api_client_authenticated.get(url)
-
-#     assert response.status_code == status.HTTP_200_OK
-#     assert response.json() == expected_response
-
-
-# @pytest.mark.django_db
-# def test_get_tracking_points_labels_no_auth(api_client: APIClient):
-#     expected_response = {"detail": "Authentication credentials were not provided."}
-
-#     url = reverse(f"{app_name}:{GET_TRACKING_POINTS_LABELS_VIEW_NAME}")
-#     response: Response = api_client.get(url)
-
-#     assert response.status_code == status.HTTP_401_UNAUTHORIZED
-#     assert response.json() == expected_response
-
-
-# @pytest.mark.django_db
-# def test_get_tracking_points_labels_missing_user_info(api_client_authenticated: APIClient):
-#     expected_response = {"detail": "No UserInfo matches the given query."}
-
-#     url = reverse(f"{app_name}:{GET_TRACKING_POINTS_LABELS_VIEW_NAME}")
-#     response: Response = api_client_authenticated.get(url)
-
-#     assert response.status_code == status.HTTP_404_NOT_FOUND
-#     assert response.json() == expected_response
+@pytest.mark.django_db
+class TestGetTrackingPointLabelsIncorrectHTTPMethods(GenericTestIncorrectHTTPMethods):
+    VIEW_NAME = GET_TRACKING_POINTS_LABELS_VIEW_NAME
+    ALLOWED_METHODS = ["get"]
