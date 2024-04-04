@@ -39,9 +39,10 @@ def test_create_tracking_point(
     assert response.status_code == expected_status
 
     if expected_status == status.HTTP_201_CREATED:
+        request_data["id"] = response.json()["data"]["id"]
         expected_response = {"data": request_data}
         assert response.json() == expected_response
-        assert UserTrackingPoint.objects.filter(user_info=basic_user_info)
+        assert UserTrackingPoint.objects.filter(user_info=basic_user_info).count() == 1
 
 
 @pytest.mark.django_db
