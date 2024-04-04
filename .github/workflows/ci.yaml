@@ -17,22 +17,6 @@ jobs:
     
     outputs:
       REPOSITORY: ${{ steps.repository_lower.outputs.REPOSITORY }}
-    
-    services:
-      postgres:
-        image: postgres
-        
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
-          options: >-
-            --health-cmd pg_isready
-            --health-interval 10s
-            --health-timeout 5s
-            --health-retries 5
-          ports:
-            5432:5432
             
     steps:
       - name: Checkout repository
@@ -68,6 +52,20 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/${{ needs.build-dev.outputs.REPOSITORY }}_dev
+    services:
+      db:
+        image: postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+          options: >-
+            --health-cmd pg_isready
+            --health-interval 10s
+            --health-timeout 5s
+            --health-retries 5
+          ports:
+            5432:5432
 
     steps:
       - name: Checkout
@@ -80,6 +78,10 @@ jobs:
       - name: Run mypy
         run: |
           mypy .
+
+      - name: Migrate
+        run: |
+          python be_physical/manage.py migrate
 
       - name: Run pytest
         run: |
