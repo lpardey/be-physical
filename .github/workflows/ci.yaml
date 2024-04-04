@@ -52,20 +52,26 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/${{ needs.build-dev.outputs.REPOSITORY }}_dev
+    env:
+      DB_NAME: postgres
+      DB_USER: postgres_user
+      DB_PASSWORD: postgres_password
+      DB_HOST: postgres_db
+      DB_PORT: 5432
     services:
-      db:
+      postgres_db:
         image: postgres
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
+          POSTGRES_USER: ${{ env.DB_USER }}
+          POSTGRES_PASSWORD: ${{ env.DB_PASSWORD }}
+          POSTGRES_DB: ${{ env.DB_NAME }}
           options: >-
             --health-cmd pg_isready
             --health-interval 10s
             --health-timeout 5s
             --health-retries 5
           ports:
-            5432:5432
+            5432:${{ env.DB_PORT }}
 
     steps:
       - name: Checkout
