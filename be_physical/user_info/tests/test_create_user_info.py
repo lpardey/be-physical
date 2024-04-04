@@ -48,7 +48,7 @@ def test_create_user_info_success(
     if expected_status == status.HTTP_201_CREATED:
         expected_response = {"data": request_data}
         assert response.json() == expected_response
-        assert UserInfo.objects.filter(user=user).exists()
+        assert UserInfo.objects.filter(user=user).count() == 1
 
 
 @pytest.mark.django_db

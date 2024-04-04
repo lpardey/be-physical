@@ -35,7 +35,7 @@ def test_create_tracking_label(
     if response.status_code == status.HTTP_201_CREATED:
         expected_response = {"data": request_data}
         assert response.json() == expected_response
-        assert UserTrackingLabel.objects.filter(label=request_data["label"]).exists()
+        assert UserTrackingLabel.objects.filter(label=request_data["label"]).count() == 1
 
 
 @pytest.mark.django_db

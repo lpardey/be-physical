@@ -23,7 +23,6 @@ class TrackingPointRequest:
 
     def generate_data(self, basic_user_info: UserInfo, user_tracking_label: UserTrackingLabel) -> dict[str, Any]:
         return {
-            "id": basic_user_info.user.pk,
             "user_info": basic_user_info.pk if self.user_info_exists else math.inf,
             "label": user_tracking_label.label if self.label_exists else math.inf,
             "date": str(self.date),
@@ -41,7 +40,6 @@ class AnnotationRequest:
 
     def generate_data(self, basic_user_info: UserInfo) -> dict[str, Any]:
         return {
-            "id": basic_user_info.user.pk,
             "user_info": basic_user_info.pk if self.user_info_exists else math.inf,
             "text": self.text,
             "annotation_type": self.annotation_type,
