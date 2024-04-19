@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "authentication",
     "user_info",
+    "training",
 ]
 
 MIDDLEWARE = [
@@ -99,6 +100,7 @@ def get_db_config() -> dict[str, str]:
         "HOST": db_host,
         "PORT": db_port,
     }
+
 
 DATABASES = {"default": get_db_config()}
 

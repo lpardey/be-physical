@@ -36,7 +36,7 @@ djangorestframework-stubs[compatible-mypy]==3.14.5
     # via -r requirements-dev.in
 execnet==2.0.2
     # via pytest-xdist
-idna==3.6
+idna==3.7
     # via requests
 iniconfig==2.0.0
     # via pytest
@@ -72,7 +72,7 @@ requests==2.31.0
     # via djangorestframework-stubs
 ruff==0.3.4
     # via -r requirements-dev.in
-sqlparse==0.4.4
+sqlparse==0.5.0
     # via
     #   -c requirements.txt
     #   django
