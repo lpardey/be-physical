@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import datetime
 
 from django.core.validators import MinValueValidator
@@ -16,13 +18,13 @@ class DifficultyLevelChoices(models.IntegerChoices):
 class Training(models.Model):
     user_info = models.ForeignKey("user_info.UserInfo", on_delete=models.CASCADE, db_index=True)
     name = models.CharField(max_length=50)
-    type = models.CharField(max_length=50)  # crossfit, hiit, recovery
+    type = models.CharField(max_length=50, blank=True)  # crossfit, hiit, recovery
     start_date = models.DateField(default=datetime.date.today)
     due_date = models.DateField(validators=[MinValueValidator(start_date)])
     # user_training_goals (marzo quiero estar en 80 kilos)
 
-    workouts: models.QuerySet["Workout"]
-    diets: models.QuerySet["Diet"]
+    workouts: models.QuerySet[Workout]
+    diets: models.QuerySet[Diet]
 
     @cached_property
     def duration(self) -> datetime.timedelta:
@@ -30,21 +32,21 @@ class Training(models.Model):
         return result
 
     @cached_property
-    def muscles(self) -> set["Muscle"]:
-        result = {muscle for workout in self.workouts for muscle in workout.muscles}
+    def muscles(self) -> set[Muscle]:
+        result = {muscle for workout in self.workouts.all() for muscle in workout.muscles}
         return result
 
     @cached_property
-    def muscle_groups(self) -> set["MuscleGroupChoices"]:
-        result = {muscle.muscle_group for muscle in self.muscles}
+    def muscle_groups(self) -> set[MuscleGroupChoices]:
+        result = {MuscleGroupChoices(muscle.muscle_group) for muscle in self.muscles}
         return result
 
     @cached_property
     def difficulty_level(self) -> DifficultyLevelChoices:
         difficulty_levels = self.workouts.values_list("difficulty_level", flat=True)
         average_difficulty = sum(difficulty_levels) / len(difficulty_levels)
-        level = min(DifficultyLevelChoices, key=lambda x: abs(x[0] - average_difficulty))
-        return level
+        result = DifficultyLevelChoices(int(round(average_difficulty)))
+        return result
 
     @property
     def streak(self) -> None:
@@ -68,16 +70,16 @@ class Workout(models.Model):
     # workout_goal
     difficulty_level = models.IntegerField(choices=DifficultyLevelChoices, default=DifficultyLevelChoices.BEGINNER)
     intensity = models.IntegerField(choices=IntensityChoices, default=IntensityChoices.LOW)
-    routines: models.QuerySet["Routine"]
+    routines: models.QuerySet[Routine]
 
     @property
-    def muscles(self) -> set["Muscle"]:
-        result = {muscle for routine in self.routines for muscle in routine.exercise.muscles.all()}
+    def muscles(self) -> set[Muscle]:
+        result = {muscle for routine in self.routines.all() for muscle in routine.exercise.muscles.all()}
         return result
 
     @property
-    def muscle_groups(self) -> set["MuscleGroupChoices"]:
-        result = {muscle.muscle_group for muscle in self.muscles}
+    def muscle_groups(self) -> set[MuscleGroupChoices]:
+        result = {MuscleGroupChoices(muscle.muscle_group) for muscle in self.muscles}
         return result
 
 
@@ -95,17 +97,37 @@ class MuscleGroupChoices(models.IntegerChoices):
     SPECIAL = 10, _("Special")
 
 
+class Muscle(models.Model):
+    name = models.CharField(max_length=50)
+    # Location and action may be scrape from https://en.wikipedia.org/wiki/List_of_skeletal_muscles_of_the_human_body
+    location = models.CharField(max_length=100)
+    action = models.CharField(max_length=100)
+    muscle_group = models.IntegerField(choices=MuscleGroupChoices, default=MuscleGroupChoices.UPPER_LEG_AND_KNEE)
+    exercises: models.QuerySet[Exercise]
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class Equipment(models.Model):
+    name = models.CharField(max_length=50)
+    description = models.CharField(max_length=50, blank=True)
+
+    def __str__(self) -> str:
+        return self.name
+
+
 class Exercise(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField(max_length=144, blank=True)
     difficulty_level = models.IntegerField(choices=DifficultyLevelChoices, default=DifficultyLevelChoices.BEGINNER)
     repetition_duration = models.IntegerField(validators=[MinValueValidator(1)])
-    muscles = models.ManyToManyField("Muscle", related_name="exercises")
+    muscles = models.ManyToManyField(Muscle, related_name="exercises")
     image_url = models.URLField()
     video_url = models.URLField()
     tracking_label = models.ForeignKey("user_info.UserTrackingLabel", on_delete=models.CASCADE)  # TODO Check
-    equipment = models.ManyToManyField("Equipment")
-    routines: models.QuerySet["Routine"]
+    equipment = models.ManyToManyField(Equipment)
+    routines: models.QuerySet[Routine]
 
     @cached_property
     def muscle_groups(self) -> set[MuscleGroupChoices]:
@@ -128,26 +150,6 @@ class Routine(models.Model):
         rest_duration = (self.sets - 1) * self.sets_rest + self.routine_rest
         result = exercise_duration + rest_duration
         return result
-
-
-class Muscle(models.Model):
-    name = models.CharField(max_length=50)
-    # Location and action may be scrape from https://en.wikipedia.org/wiki/List_of_skeletal_muscles_of_the_human_body
-    location = models.CharField(max_length=100)
-    action = models.CharField(max_length=100)
-    muscle_group = models.IntegerField(choices=MuscleGroupChoices, default=MuscleGroupChoices.UPPER_LEG_AND_KNEE)
-    exercises: models.QuerySet[Exercise]
-
-    def __str__(self) -> str:
-        return self.name
-
-
-class Equipment(models.Model):
-    name = models.CharField(max_length=50)
-    description = models.CharField(max_length=50)
-
-    def __str__(self) -> str:
-        return self.name
 
 
 class Diet(models.Model):
