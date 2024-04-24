@@ -2,8 +2,6 @@ import datetime
 
 import pytest
 from django.contrib.auth.models import User
-from rest_framework.authtoken.models import Token
-from rest_framework.exceptions import NotAuthenticated
 from rest_framework.test import APIClient
 
 from ..models import (
@@ -15,15 +13,6 @@ from ..models import (
     UserTrackingLabel,
     UserTrackingPoint,
 )
-
-UNAUTHORIZED_RESPONSE = {"detail": NotAuthenticated.default_detail}
-USER_INFO_NOT_FOUND_RESPONSE = {"detail": "No UserInfo matches the given query."}
-
-
-@pytest.fixture
-def user(db: None) -> User:
-    user = User.objects.create_user(username="John", email="john@test.com", password="john1234")
-    return user
 
 
 @pytest.fixture(
@@ -150,35 +139,7 @@ def user_tracking_label(db: None) -> UserTrackingLabel:
     return UserTrackingLabel.objects.create(label="Push ups", description="Number of push ups")
 
 
-@pytest.fixture
-def api_client() -> APIClient:
-    return APIClient()
-
-
-@pytest.fixture
-def user_token(db: None, user: User) -> str:
-    token, _ = Token.objects.create(user=user)
-    return str(token)
-
-
-@pytest.fixture()
-def api_client_authenticated(api_client: APIClient, user: User) -> APIClient:
-    api_client.force_authenticate(user=user)
-    return api_client
-
-
 @pytest.fixture()
 def api_client_authenticated_with_user_info(api_client: APIClient, user: User, basic_user_info: User) -> APIClient:
     api_client.force_authenticate(user=user)
     return api_client
-
-
-@pytest.fixture(
-    params=[
-        pytest.param("api_client_authenticated", id="Basic client (authenticated)"),
-        pytest.param("api_client", id="Basic client (not authenticated)"),
-    ]
-)
-def client_fixture(request: pytest.FixtureRequest) -> UserInfo:
-    fixture_value: UserInfo = request.getfixturevalue(request.param)
-    return fixture_value
