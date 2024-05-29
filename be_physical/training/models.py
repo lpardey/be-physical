@@ -24,7 +24,7 @@ class Training(models.Model):
     # user_training_goals (marzo quiero estar en 80 kilos)
 
     workouts: models.QuerySet[Workout]
-    diets: models.QuerySet[Diet]
+    diets: models.QuerySet[Diet]  # Offer personalized meal plans based on dietary preferences.
 
     @cached_property
     def duration(self) -> datetime.timedelta:
@@ -42,11 +42,15 @@ class Training(models.Model):
         return result
 
     @cached_property
-    def difficulty_level(self) -> DifficultyLevelChoices:
+    def difficulty_level(self) -> DifficultyLevelChoices | None:
         difficulty_levels = self.workouts.values_list("difficulty_level", flat=True)
-        average_difficulty = sum(difficulty_levels) / len(difficulty_levels)
-        result = DifficultyLevelChoices(int(round(average_difficulty)))
-        return result
+
+        if not difficulty_levels:
+            return None
+
+        average_value = sum(difficulty_levels) / len(difficulty_levels)
+        level = DifficultyLevelChoices(round(average_value))
+        return level
 
     @property
     def streak(self) -> None:
