@@ -7,6 +7,8 @@ from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
 
+from .validators import validate_due_date
+
 
 class DifficultyLevelChoices(models.IntegerChoices):
     BEGINNER = 0, _("Beginner")
@@ -16,15 +18,15 @@ class DifficultyLevelChoices(models.IntegerChoices):
 
 
 class Training(models.Model):
-    user_info = models.ForeignKey("user_info.UserInfo", on_delete=models.CASCADE, db_index=True)
+    user_info = models.ForeignKey("user_info.UserInfo", on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     type = models.CharField(max_length=50, blank=True)  # crossfit, hiit, recovery
     start_date = models.DateField(default=datetime.date.today)
-    due_date = models.DateField(validators=[MinValueValidator(start_date)])
-    # user_training_goals (marzo quiero estar en 80 kilos)
+    due_date = models.DateField(validators=[validate_due_date])
+    # user_training_goals (on march I want to weight 80 kg)
 
     workouts: models.QuerySet[Workout]
-    diets: models.QuerySet[Diet]
+    diets: models.QuerySet[Diet]  # Offer personalized meal plans based on dietary preferences.
 
     @cached_property
     def duration(self) -> datetime.timedelta:
@@ -42,11 +44,15 @@ class Training(models.Model):
         return result
 
     @cached_property
-    def difficulty_level(self) -> DifficultyLevelChoices:
+    def difficulty_level(self) -> DifficultyLevelChoices | None:
         difficulty_levels = self.workouts.values_list("difficulty_level", flat=True)
-        average_difficulty = sum(difficulty_levels) / len(difficulty_levels)
-        result = DifficultyLevelChoices(int(round(average_difficulty)))
-        return result
+
+        if not difficulty_levels:
+            return None
+
+        average_value = sum(difficulty_levels) / len(difficulty_levels)
+        level = DifficultyLevelChoices(round(average_value))
+        return level
 
     @property
     def streak(self) -> None:

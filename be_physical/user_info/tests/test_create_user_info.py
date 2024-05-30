@@ -8,7 +8,7 @@ from rest_framework.response import Response
 
 from ..models import UserInfo
 from ..urls import CREATE_USER_INFO_VIEW_NAME, app_name
-from .conftest import UNAUTHORIZED_RESPONSE, APIClient
+from .conftest import APIClient
 from .generic_requests import CreateUserInfoRequest
 from .generic_test_http_methods import GenericTestIncorrectHTTPMethods
 
@@ -62,13 +62,13 @@ def test_create_user_info_already_exists(basic_user_info: UserInfo, api_client_a
 
 
 @pytest.mark.django_db
-def test_create_user_info_unauthorized(api_client: APIClient):
+def test_create_user_info_unauthorized(api_client: APIClient, unauthorized_response: dict[str, str]):
     url = reverse(f"{app_name}:{CREATE_USER_INFO_VIEW_NAME}")
 
     response: Response = api_client.post(url)
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
-    assert response.json() == UNAUTHORIZED_RESPONSE
+    assert response.json() == unauthorized_response
 
 
 @pytest.mark.django_db

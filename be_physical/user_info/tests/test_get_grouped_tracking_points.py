@@ -11,10 +11,6 @@ from rest_framework.test import APIClient
 from ..models import UserInfo, UserTrackingLabel, UserTrackingPoint
 from ..serializers import GroupedTrackingPointsQueryParamsSerializer
 from ..urls import GET_GROUPED_TRACKING_POINTS_VIEW_NAME, app_name
-from .conftest import (
-    UNAUTHORIZED_RESPONSE,
-    USER_INFO_NOT_FOUND_RESPONSE,
-)
 from .generic_test_http_methods import GenericTestIncorrectHTTPMethods
 
 LABEL_TEST_VALUE = 50.0
@@ -74,34 +70,34 @@ def test_get_grouped_tracking_points(
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    "client_fixture, expected_status, expected_response",
+    "client_fixture, expected_status, expected_response_fixture",
     [
         pytest.param(
             "api_client",
             status.HTTP_401_UNAUTHORIZED,
-            UNAUTHORIZED_RESPONSE,
+            "unauthorized_response",
             id="Unauthorized",
         ),
         pytest.param(
             "api_client_authenticated",
             status.HTTP_404_NOT_FOUND,
-            USER_INFO_NOT_FOUND_RESPONSE,
+            "user_info_not_found_response",
             id="UserInfo not found",
         ),
     ],
-    indirect=["client_fixture"],
+    indirect=["client_fixture", "expected_response_fixture"],
 )
 def test_get_grouped_tracking_points_failed(
     client_fixture: APIClient,
     expected_status: status,
-    expected_response: dict[str, Any],
+    expected_response_fixture: dict[str, Any],
 ):
     url = reverse(f"{app_name}:{GET_GROUPED_TRACKING_POINTS_VIEW_NAME}")
 
     response: Response = client_fixture.get(url)
 
     assert response.status_code == expected_status
-    assert response.json() == expected_response
+    assert response.json() == expected_response_fixture
 
 
 @pytest.mark.django_db
