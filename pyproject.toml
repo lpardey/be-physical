@@ -60,6 +60,7 @@ exclude = [
     'be_physical/.*/migrations/.*\.py',
     '^build/.*',
     'be_physical/.*/tests/.*',
+    'be_physical/conftest.py',
 ]
 
 plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]

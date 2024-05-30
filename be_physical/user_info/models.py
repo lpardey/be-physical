@@ -23,7 +23,7 @@ class UserInfo(models.Model):
         blank=False,
         null=False,
         help_text=_("Birthdate as day/month/year"),
-        validators=[validate_birth_date],  # type: ignore
+        validators=[validate_birth_date],
     )
     annotations: models.QuerySet["UserAnnotation"]
     tracking_points: models.QuerySet["UserTrackingPoint"]
