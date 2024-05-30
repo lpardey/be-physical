@@ -86,8 +86,8 @@ class UserAnnotation(models.Model):
 
 
 class UserTrackingPoint(models.Model):
-    user_info = models.ForeignKey(UserInfo, on_delete=models.CASCADE, db_index=True, related_name="tracking_points")
-    label = models.ForeignKey("UserTrackingLabel", on_delete=models.CASCADE, db_index=True)
+    user_info = models.ForeignKey(UserInfo, on_delete=models.CASCADE, related_name="tracking_points")
+    label = models.ForeignKey("UserTrackingLabel", on_delete=models.CASCADE)
     date = models.DateField(default=datetime.date.today)
     value = models.FloatField()
 
